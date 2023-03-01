@@ -1,4 +1,6 @@
-#include "../../Public/Character/YBPlayerCharacter.h"
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "Character/YBPlayerCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -7,7 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "../../Public/Character/YBPlayerCharacterMovementComp.h"
-#include "../../Public/WeaponSystem/WeaponBase.h"
+#include "../../Public/WeaponSystem/YBWeaponBase.h"
 
 #include "GameFramework/Character.h"
 #include "Engine/World.h"
@@ -111,7 +113,7 @@ void AYBPlayerCharacter::Move(const FInputActionValue& Value)
 
 		if (GetCharacterMovement()->Velocity.Length() > 10)
 		{
-			
+
 			FRotator lNewRot = UKismetMathLibrary::RInterpTo(GetActorRotation(), GetControlRotation(), GetWorld()->GetDeltaSeconds(), 5);
 			lNewRot.Pitch = 0;
 			lNewRot.Roll = 0;
@@ -182,13 +184,13 @@ void AYBPlayerCharacter::SpawnDefaultWeapon()
 		FActorSpawnParameters lParams = FActorSpawnParameters();
 		lParams.Owner = this;
 
-		m_weapon = lWorld->SpawnActor<AWeaponBase>(m_weaponClassToSpawn, lParams);
+		m_weapon = lWorld->SpawnActor<AYBWeaponBase>(m_weaponClassToSpawn, lParams);
 
 		if (m_weapon != nullptr)
 		{
 			FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
 
-			m_weapon->GetMesh()->AttachToComponent(GetMesh(),lTransRules,m_nameSocketScabber);
+			m_weapon->GetMesh()->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
 		}
 	}
 }

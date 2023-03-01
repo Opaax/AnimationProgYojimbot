@@ -1,10 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// All Right reserved to Enguerran Cobert.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "CharacterState.h"
+#include "YBCharacterState.h"
 #include "YBPlayerAinmInstance.generated.h"
 
 class AYBPlayerCharacter;
@@ -21,45 +21,45 @@ class YOJIMBOT_UE_API UYBPlayerAinmInstance : public UAnimInstance
 protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Refs")
-	AYBPlayerCharacter* m_playerCharacter = nullptr;
+		AYBPlayerCharacter* m_playerCharacter = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Refs")
-	UCharacterMovementComponent* m_characterMovement = nullptr;
+		UCharacterMovementComponent* m_characterMovement = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
-	bool bIsFalling = false;
+		bool bIsFalling = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
-	bool bUseRootMotion = false;
+		bool bUseRootMotion = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
-	float m_groundSpeed = 0.f;
+		float m_groundSpeed = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
-	FVector2D m_inputDirection;
+		FVector2D m_inputDirection;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
-	ECharacterState m_currentCharacterState;
-	
+		ECharacterState m_currentCharacterState;
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	UFUNCTION(BlueprintCallable)
-	void GetPlayerCharacter();
+		void GetPlayerCharacter();
 
 	UFUNCTION(BlueprintCallable)
-	void GetPlayerGroundSpeed();
+		void GetPlayerGroundSpeed();
 
 	UFUNCTION(BlueprintCallable)
-	void GetPlayerFallingState();
+		void GetPlayerFallingState();
 
 	UFUNCTION(BlueprintCallable)
-	void GetPlayerCharacterState();
+		void GetPlayerCharacterState();
 
 	UFUNCTION(BlueprintCallable)
-	void GetPlayerUseRootMotion();
+		void GetPlayerUseRootMotion();
 
 	UFUNCTION(BlueprintCallable)
-	void GetPlayerInputDirection();
+		void GetPlayerInputDirection();
 };

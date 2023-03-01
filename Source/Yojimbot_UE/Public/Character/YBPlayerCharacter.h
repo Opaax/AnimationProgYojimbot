@@ -4,11 +4,11 @@
 #include "../Framework/YBCharacter.h"
 #include "InputActionValue.h"
 #include "UObject/ObjectMacros.h"
-#include "CharacterState.h"
+#include "YBCharacterState.h"
 #include "YBPlayerCharacter.generated.h"
 
 class UYBPlayerCharacterMovementComp;
-class AWeaponBase;
+class AYBWeaponBase;
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -41,10 +41,10 @@ protected:
 	bool bIsWeaponOnHand = false;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
-	AWeaponBase* m_weapon = nullptr;
+	AYBWeaponBase* m_weapon = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AWeaponBase> m_weaponClassToSpawn = nullptr;
+	TSubclassOf<AYBWeaponBase> m_weaponClassToSpawn = nullptr;
 	/////////////// END WEAPON ///////////////
 
 	////////////// MOVEMENT /////////////////
@@ -54,14 +54,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (DisplayName = "NormalSpeed", AllowPrivateAccess = "true"))
 	float m_normalSpeed = 400.f;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (DisplayName = "OneHandSwordSpeed", AllowPrivateAccess = "true"))
 	float m_oneHandSwordSpeed = 500.f;
 	///////////// END MOVEMENT /////////////
 
 	////////////// Animation /////////////////
 
-	UPROPERTY(EditDefaultsOnly,BlueprintGetter = GetUseRootMotion, Category = "Animation/Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintGetter = GetUseRootMotion, Category = "Animation/Settings")
 	bool bUseRootMotion = false;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, BlueprintGetter = GetInputDirection, Category = "Input")
