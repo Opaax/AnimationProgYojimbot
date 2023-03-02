@@ -57,6 +57,29 @@ AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
+void AYBPlayerCharacter::EquipOneHandWeapon()
+{
+	bIsWeaponOnHand = true;
+	m_characterState = ECharacterState::ECS_OneHandWeapon;
+	GetCharacterMovement()->MaxWalkSpeed = m_oneHandSwordSpeed;
+
+	// add battle mapping context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(m_oneHandSwordMappingContext, 1);
+		}
+	}
+
+	if (m_weapon != nullptr)
+	{
+		FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
+
+		m_weapon->GetMesh()->AttachToComponent(GetMesh(), lTransRules, m_nameSocketOneSwordHand);
+	}
+}
+
 void AYBPlayerCharacter::BeginPlay()
 {
 	// Call the base class  
@@ -205,24 +228,12 @@ void AYBPlayerCharacter::GetAnimInstanceFromMesh()
 
 void AYBPlayerCharacter::TakeWeaponOnHand()
 {
-	bIsWeaponOnHand = true;
-	m_characterState = ECharacterState::ECS_OneHandWeapon;
-	GetCharacterMovement()->MaxWalkSpeed = m_oneHandSwordSpeed;
-
-	// add battle mapping context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	if (!bIsWeaponOnHand && CanEquipWeapon())
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (m_animInstance != nullptr && m_equipMontage != nullptr)
 		{
-			Subsystem->AddMappingContext(m_oneHandSwordMappingContext, 1);
+			m_animInstance->Montage_Play(m_equipMontage);
 		}
-	}
-
-	if (m_weapon != nullptr)
-	{
-		FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
-
-		m_weapon->GetMesh()->AttachToComponent(GetMesh(), lTransRules, m_nameSocketOneSwordHand);
 	}
 }
 
@@ -252,4 +263,9 @@ void AYBPlayerCharacter::StoreWeaponInScabbard()
 bool AYBPlayerCharacter::CanAttack()
 {
 	return m_characterActionState == ECharacterActionState::ECAS_Unoccupied && m_characterState == ECharacterState::ECS_OneHandWeapon;
+}
+
+bool AYBPlayerCharacter::CanEquipWeapon()
+{
+	return m_characterActionState == ECharacterActionState::ECAS_Unoccupied && m_characterState == ECharacterState::ECS_Unarmed;
 }

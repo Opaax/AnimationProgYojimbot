@@ -73,6 +73,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation/Montages", meta = (DisplayName = "AttackMontage"))
 	UAnimMontage* m_attackMontage = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation/Montages", meta = (DisplayName = "EquipMontage"))
+	UAnimMontage* m_equipMontage = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation/SocketNames", meta = (AllowPrivateAccess = "true", DisplayName = "NameSocketScabber"))
 	FName m_nameSocketScabber = "";
 
@@ -123,6 +126,9 @@ public:
 
 	AYBPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
+	UFUNCTION(BlueprintCallable)
+	void EquipOneHandWeapon();
+
 protected:
 
 	/** Called for movement input */
@@ -154,6 +160,9 @@ protected:
 
 	UFUNCTION()
 	bool CanAttack();
+
+	UFUNCTION()
+	bool CanEquipWeapon();
 
 protected:
 	// APawn interface
