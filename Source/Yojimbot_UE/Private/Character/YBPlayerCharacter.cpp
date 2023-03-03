@@ -100,6 +100,22 @@ void AYBPlayerCharacter::BeginPlay()
 	GetAnimInstanceFromMesh();
 }
 
+void AYBPlayerCharacter::OnAttackCollisionEnableDetected()
+{
+	if (m_weapon != nullptr)
+	{
+		m_weapon->ActivateAttackCollision();
+	}
+}
+
+void AYBPlayerCharacter::OnAttackCollisionDisableDetected()
+{
+	if (m_weapon != nullptr)
+	{
+		m_weapon->DesactivateAttackCollision();
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 

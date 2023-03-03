@@ -129,6 +129,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void EquipOneHandWeapon();
 
+	UFUNCTION(BlueprintCallable)
+	void OnAttackCollisionEnableDetected();
+
+	UFUNCTION(BlueprintCallable)
+	void OnAttackCollisionDisableDetected();
+
 protected:
 
 	/** Called for movement input */
@@ -171,6 +177,7 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	//////////////// GETTER SETTER //////////////////////
 public:
 	/** Returns CameraBoom subobject **/
 	UFUNCTION(BlueprintCallable, BlueprintPure)
