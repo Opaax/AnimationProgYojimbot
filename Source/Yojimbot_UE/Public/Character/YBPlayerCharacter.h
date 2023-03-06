@@ -81,6 +81,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation/SocketNames", meta = (AllowPrivateAccess = "true", DisplayName = "NameSocketOneSwordHand"))
 	FName m_nameSocketOneSwordHand = "";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	bool bShouldRotateToControllerDirectionBeforeAttacking = false;
 	////////////// END ANIMATION /////////////////
 
 	////////////// CAMERA /////////////////

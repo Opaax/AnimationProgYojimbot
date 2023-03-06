@@ -213,6 +213,17 @@ void AYBPlayerCharacter::PrimaryAttack(const FInputActionValue& Value)
 	{
 		if (m_animInstance != nullptr && m_attackMontage != nullptr)
 		{
+			if (bShouldRotateToControllerDirectionBeforeAttacking)
+			{
+				const FRotator Rotation = Controller->GetControlRotation();
+				const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+
+				//const FRotator lNewRot = UKismetMathLibrary::RInterpTo(GetActorRotation(), YawRotation, GetWorld()->GetDeltaSeconds(), 5);
+
+				SetActorRotation(YawRotation);
+			}
+
 			m_animInstance->Montage_Play(m_attackMontage);
 			m_characterActionState = ECharacterActionState::ECAS_Attacking;
 		}

@@ -56,11 +56,12 @@ void AYBWeaponBase::BeginDestroy()
 
 void AYBWeaponBase::OnBoxColliderOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlap"));
+	UE_LOG(LogTemp, Warning, TEXT("Weapon Overlap"));
 
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(1,4,FColor::Blue,FString("Message"));
+		FString lMSG = FString::Printf(TEXT("Weapon: %s, Overlap this Actor: %s"), *GetName(), *OtherActor->GetName());
+		GEngine->AddOnScreenDebugMessage(1,4,FColor::Blue, lMSG);
 	}
 
 	FHitResult lTraceResult;
@@ -70,7 +71,7 @@ void AYBWeaponBase::OnBoxColliderOverlap(UPrimitiveComponent* OverlappedComponen
 	UKismetSystemLibrary::BoxTraceSingle(this, m_startTrace->GetComponentLocation(), m_endTrace->GetComponentLocation(),
 		m_boxTraceHalfSize, m_startTrace->GetComponentRotation(),
 		ETraceTypeQuery::TraceTypeQuery1, false, m_actorToIgnoreWhileOverlaping , 
-		EDrawDebugTrace::ForDuration, lTraceResult, true, FColor::Red, FColor::Green, 5.f);
+		EDrawDebugTrace::None, lTraceResult, true, FColor::Red, FColor::Green, 5.f);
 
 	if (AActor* lHitActor = lTraceResult.GetActor())
 	{
@@ -78,7 +79,7 @@ void AYBWeaponBase::OnBoxColliderOverlap(UPrimitiveComponent* OverlappedComponen
 		{
 			m_actorToIgnoreWhileOverlaping.AddUnique(lHitActor);
 
-			lHitInt->TakeHit(lTraceResult.ImpactPoint);
+			lHitInt->TakeHit(lTraceResult.ImpactPoint, Cast<APawn>(GetOwner()));
 		}
 	}
 }

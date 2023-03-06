@@ -8,6 +8,7 @@
 #include "YBEnemy.generated.h"
 
 class UAnimMontage;
+class APawn;
 
 UCLASS()
 class YOJIMBOT_UE_API AYBEnemy : public ACharacter, public IHitInterface
@@ -51,5 +52,5 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Inherited from IHitInterface
-	virtual void TakeHit(const FVector& ImpactPoint) override;
+	virtual void TakeHit(const FVector& ImpactPoint, const APawn* Causer) override;
 };

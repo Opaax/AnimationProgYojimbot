@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "HitInterface.generated.h"
 
+class APawn;
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UHitInterface : public UInterface
@@ -22,5 +24,5 @@ class YOJIMBOT_UE_API IHitInterface
 
 public:
 
-	virtual void TakeHit(const FVector& ImpactPoint) = 0;
+	virtual void TakeHit(const FVector& ImpactPoint, const APawn* Causer) = 0;
 };

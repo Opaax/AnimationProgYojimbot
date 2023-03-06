@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 
 #include "../../Public/Utils/CustomDebugMacro.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AYBEnemy::AYBEnemy()
 {
@@ -43,11 +44,54 @@ void AYBEnemy::InitMeshCollision()
 	}
 }
 
-void AYBEnemy::TakeHit(const FVector& ImpactPoint)
+void AYBEnemy::TakeHit(const FVector& ImpactPoint,const APawn* Causer)
 {
-	DRAW_SPHERE_AT(ImpactPoint, 3.f);
+	const FVector lForward = GetActorForwardVector();
+	//place the impact loc Z to actor Z
+	const FVector lImpactReplaced = FVector(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
+	const FVector lToHit = (lImpactReplaced - GetActorLocation()).GetSafeNormal();
 
-	FName lMontageLayerName = m_hitForwardLayerName;
+	//Get cos angle from vector
+	float lAngle = FVector::DotProduct(lForward, lToHit);
+	//inverse cos to rad angle
+	lAngle = FMath::Acos(lAngle);
+	//rad to degree
+	lAngle = FMath::RadiansToDegrees(lAngle);
+
+	const FVector lCross = FVector::CrossProduct(lForward, lToHit);
+
+	if (lCross.Z < 0)
+	{
+		lAngle *= -1.f;
+	}
+
+	DRAW_ARROW(GetActorLocation(), GetActorLocation() + (lForward * 400.f), FColor::Blue);
+	DRAW_ARROW(GetActorLocation(), GetActorLocation() + (lToHit * 400.f), FColor::Green);
+
+	/*UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(),GetActorLocation() + (lForward * 400.f),3, FColor::Blue, 5.f, 4.f);
+	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(),GetActorLocation() + (lToHit * 400.f), 3,FColor::Green, 5.f, 4.f);*/
+
+	FName lMontageLayerName = m_hitBackwardLayerName;
+
+	if (lAngle >= -45 && lAngle < 45.f)
+	{
+		lMontageLayerName = m_hitForwardLayerName;
+	}
+	else if (lAngle < -45.f && lAngle > -135.f)
+	{
+		lMontageLayerName = m_hitRightLayerName;
+	}
+	else if (lAngle >= 45.f && lAngle <= 135.f)
+	{
+		lMontageLayerName = m_hitLeftLayerName;
+	}
+
+	if (GEngine)
+	{
+		FString lMSG = FString::Printf(TEXT("AnimSelected: %s, with that angle %f"), *lMontageLayerName.ToString(), lAngle);
+		GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Blue, lMSG);
+	}
+
 
 	GetMesh()->GetAnimInstance()->Montage_Play(m_hitReactionMontage);
 	GetMesh()->GetAnimInstance()->Montage_JumpToSection(lMontageLayerName, m_hitReactionMontage);
