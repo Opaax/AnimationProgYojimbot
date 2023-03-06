@@ -4,17 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "YBCharacter.generated.h"
+#include "YBEnemy.generated.h"
 
 UCLASS()
-class YOJIMBOT_UE_API AYBCharacter : public ACharacter
+class YOJIMBOT_UE_API AYBEnemy : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	AYBCharacter(const FObjectInitializer& ObjectInitializer);
+	AYBEnemy();
 
+protected:
+
+	UFUNCTION()
+	void InitMeshCollision();
+
+/// ///////////////// OVERRIDES ////////////////////////
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -26,5 +32,4 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual bool CanJumpInternal_Implementation() const override;
 };

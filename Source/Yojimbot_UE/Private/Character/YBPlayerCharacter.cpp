@@ -193,6 +193,11 @@ void AYBPlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+bool AYBPlayerCharacter::CanJumpInternal_Implementation() const
+{
+	return Super::CanJumpInternal_Implementation() && m_characterActionState != ECharacterActionState::ECAS_Attacking;
+}
+
 void AYBPlayerCharacter::EquipWeapon(const FInputActionValue& Value)
 {
 	// is weapon is on hand store it otherwise take the weapon

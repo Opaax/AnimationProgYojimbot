@@ -170,13 +170,6 @@ protected:
 	UFUNCTION()
 	bool CanEquipWeapon();
 
-protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	// To add mapping context
-	virtual void BeginPlay();
-
 	//////////////// GETTER SETTER //////////////////////
 public:
 	/** Returns CameraBoom subobject **/
@@ -210,4 +203,17 @@ public:
 	/** Set Character Action State*/
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCurrentActionSate(ECharacterActionState NextState) { m_characterActionState = NextState; }
+
+
+////////// OVERRIDES ////////////
+protected:
+	// APawn interface
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// To add mapping context
+	virtual void BeginPlay();
+
+public:
+
+	virtual bool CanJumpInternal_Implementation() const override;
 };
