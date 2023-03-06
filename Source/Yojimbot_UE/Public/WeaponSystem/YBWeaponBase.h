@@ -35,6 +35,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Collision, meta = (DsiplayName = "EndTrace"))
 	USceneComponent* m_endTrace;
 
+	UPROPERTY(EditDefaultsOnly, Category = Collision, meta = (DisplayName = "BoxTraceHalfSize"))
+	FVector m_boxTraceHalfSize = FVector(5.f, 5.f, 5.f);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Collision)
+	TArray<AActor*> m_actorToIgnoreWhileOverlaping;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

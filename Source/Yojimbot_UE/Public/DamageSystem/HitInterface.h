@@ -20,6 +20,7 @@ class YOJIMBOT_UE_API IHitInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+
+	virtual void TakeHit(const FVector& ImpactPoint) = 0;
 };

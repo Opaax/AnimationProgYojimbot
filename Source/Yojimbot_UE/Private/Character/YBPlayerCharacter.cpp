@@ -76,7 +76,7 @@ void AYBPlayerCharacter::EquipOneHandWeapon()
 	{
 		FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
 
-		m_weapon->GetMesh()->AttachToComponent(GetMesh(), lTransRules, m_nameSocketOneSwordHand);
+		m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketOneSwordHand);
 	}
 }
 
@@ -232,9 +232,9 @@ void AYBPlayerCharacter::SpawnDefaultWeapon()
 
 		if (m_weapon != nullptr)
 		{
-			FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
+			FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
 
-			m_weapon->GetMesh()->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
+			m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
 		}
 	}
 }
@@ -277,7 +277,7 @@ void AYBPlayerCharacter::StoreWeaponInScabbard()
 	{
 		FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
 
-		m_weapon->GetMesh()->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
+		m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
 	}
 }
 

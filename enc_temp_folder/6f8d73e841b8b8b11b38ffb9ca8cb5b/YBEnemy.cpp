@@ -46,9 +46,4 @@ void AYBEnemy::InitMeshCollision()
 void AYBEnemy::TakeHit(const FVector& ImpactPoint)
 {
 	DRAW_SPHERE_AT(ImpactPoint, 3.f);
-
-	FName lMontageLayerName = m_hitForwardLayerName;
-
-	GetMesh()->GetAnimInstance()->Montage_Play(m_hitReactionMontage);
-	GetMesh()->GetAnimInstance()->Montage_JumpToSection(lMontageLayerName, m_hitReactionMontage);
 }

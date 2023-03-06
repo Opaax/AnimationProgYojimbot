@@ -100,7 +100,5 @@ void AYBWeaponBase::DesactivateAttackCollision()
 	UE_LOG(LogTemp, Warning, TEXT("Desactivate"));
 
 	m_attackCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	m_actorToIgnoreWhileOverlaping.Empty();
 }
 

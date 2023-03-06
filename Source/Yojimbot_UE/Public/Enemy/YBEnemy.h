@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../DamageSystem/HitInterface.h"
 #include "YBEnemy.generated.h"
 
+class UAnimMontage;
+
 UCLASS()
-class YOJIMBOT_UE_API AYBEnemy : public ACharacter
+class YOJIMBOT_UE_API AYBEnemy : public ACharacter, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -16,6 +19,21 @@ public:
 	AYBEnemy();
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation/Hit", meta = (DisplayName = "HitReactionMontage"))
+	UAnimMontage* m_hitReactionMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation/Hit", meta = (DisplayName = "HitForwardLayerName"))
+	FName m_hitForwardLayerName = "Forward";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation/Hit", meta = (DisplayName = "HitBackwardLayerName"))
+	FName m_hitBackwardLayerName = "Backward";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation/Hit", meta = (DisplayName = "HitLeftLayerName"))
+	FName m_hitLeftLayerName = "Left";
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Animation/Hit", meta = (DisplayName = "HitForwardLayerName"))
+	FName m_hitRightLayerName = "Right";
 
 	UFUNCTION()
 	void InitMeshCollision();
@@ -32,4 +50,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Inherited from IHitInterface
+	virtual void TakeHit(const FVector& ImpactPoint) override;
 };
