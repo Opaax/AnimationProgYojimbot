@@ -9,15 +9,15 @@
 
 class UAnimMontage;
 class APawn;
+class UYBHealthComponent;
+class AController;
 
 UCLASS()
 class YOJIMBOT_UE_API AYBEnemy : public ACharacter, public IHitInterface
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
-	AYBEnemy();
+
 
 protected:
 
@@ -36,8 +36,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation/Hit", meta = (DisplayName = "HitForwardLayerName"))
 	FName m_hitRightLayerName = "Right";
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = YBComponents)
+	UYBHealthComponent* m_healthComponent = nullptr;
+
 	UFUNCTION()
 	void InitMeshCollision();
+
+	UFUNCTION()
+	void InitHealthComponent();
+
+	UFUNCTION(BlueprintCallable)
+	void ComputeHitReactionAngle(const FVector& ImpactPoint, const APawn* Causer);
+
+public:
+	// Sets default values for this character's properties
+	AYBEnemy();
 
 /// ///////////////// OVERRIDES ////////////////////////
 protected:
@@ -45,12 +58,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// Inherited from IHitInterface
+	virtual float TakeDamage(float DamageAmount, const FDamageEvent&  DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	virtual void TakeHit(const FVector& ImpactPoint, const APawn* Causer) override;
+
+	virtual void OnHit_Implementation(const FVector& ImpactPoint, const APawn* Causer) override;
 };

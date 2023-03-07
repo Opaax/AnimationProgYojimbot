@@ -4,9 +4,11 @@
 #include "Enemy/YBEnemy.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "../../Public/Components/YBHealthComponent.h"
 
 #include "../../Public/Utils/CustomDebugMacro.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/Controller.h"
 
 AYBEnemy::AYBEnemy()
 {
@@ -15,6 +17,7 @@ AYBEnemy::AYBEnemy()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
 	InitMeshCollision();
+	InitHealthComponent();
 }
 
 void AYBEnemy::BeginPlay()
@@ -44,7 +47,12 @@ void AYBEnemy::InitMeshCollision()
 	}
 }
 
-void AYBEnemy::TakeHit(const FVector& ImpactPoint,const APawn* Causer)
+void AYBEnemy::InitHealthComponent()
+{
+	m_healthComponent = CreateDefaultSubobject<UYBHealthComponent>(TEXT("HealthComponent"));
+}
+
+void AYBEnemy::ComputeHitReactionAngle(const FVector& ImpactPoint, const APawn* Causer)
 {
 	const FVector lForward = GetActorForwardVector();
 	//place the impact loc Z to actor Z
@@ -65,12 +73,6 @@ void AYBEnemy::TakeHit(const FVector& ImpactPoint,const APawn* Causer)
 		lAngle *= -1.f;
 	}
 
-	DRAW_ARROW(GetActorLocation(), GetActorLocation() + (lForward * 400.f), FColor::Blue);
-	DRAW_ARROW(GetActorLocation(), GetActorLocation() + (lToHit * 400.f), FColor::Green);
-
-	/*UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(),GetActorLocation() + (lForward * 400.f),3, FColor::Blue, 5.f, 4.f);
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(),GetActorLocation() + (lToHit * 400.f), 3,FColor::Green, 5.f, 4.f);*/
-
 	FName lMontageLayerName = m_hitBackwardLayerName;
 
 	if (lAngle >= -45 && lAngle < 45.f)
@@ -86,13 +88,33 @@ void AYBEnemy::TakeHit(const FVector& ImpactPoint,const APawn* Causer)
 		lMontageLayerName = m_hitLeftLayerName;
 	}
 
+	GetMesh()->GetAnimInstance()->Montage_Play(m_hitReactionMontage);
+	GetMesh()->GetAnimInstance()->Montage_JumpToSection(lMontageLayerName, m_hitReactionMontage);
+
+	DRAW_ARROW(GetActorLocation(), GetActorLocation() + (lForward * 400.f), FColor::Blue);
+	DRAW_ARROW(GetActorLocation(), GetActorLocation() + (lToHit * 400.f), FColor::Green);
+
 	if (GEngine)
 	{
 		FString lMSG = FString::Printf(TEXT("AnimSelected: %s, with that angle %f"), *lMontageLayerName.ToString(), lAngle);
-		GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Blue, lMSG);
+		GEngine->AddOnScreenDebugMessage(2, 4, FColor::Blue, lMSG);
 	}
 
+}
 
-	GetMesh()->GetAnimInstance()->Montage_Play(m_hitReactionMontage);
-	GetMesh()->GetAnimInstance()->Montage_JumpToSection(lMontageLayerName, m_hitReactionMontage);
+void AYBEnemy::TakeHit(const FVector& ImpactPoint,const APawn* Causer)
+{
+	ComputeHitReactionAngle(ImpactPoint, Causer);
+
+	//From Interface HitInterface
+	Execute_OnHit(this, ImpactPoint, Causer);
+}
+
+void AYBEnemy::OnHit_Implementation(const FVector& ImpactPoint, const APawn* Causer)
+{
+}
+
+float AYBEnemy::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }

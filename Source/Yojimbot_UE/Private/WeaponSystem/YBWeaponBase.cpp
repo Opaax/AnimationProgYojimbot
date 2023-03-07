@@ -10,6 +10,8 @@
 #include "Engine/Engine.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "../../Public/DamageSystem/HitInterface.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
 
 // Sets default values
 AYBWeaponBase::AYBWeaponBase()
@@ -80,6 +82,8 @@ void AYBWeaponBase::OnBoxColliderOverlap(UPrimitiveComponent* OverlappedComponen
 			m_actorToIgnoreWhileOverlaping.AddUnique(lHitActor);
 
 			lHitInt->TakeHit(lTraceResult.ImpactPoint, Cast<APawn>(GetOwner()));
+
+			UGameplayStatics::ApplyDamage(lHitActor, 10.f, Cast<APawn>(GetOwner())->GetController(), GetOwner(), UDamageType::StaticClass());
 		}
 	}
 }

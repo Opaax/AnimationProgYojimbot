@@ -24,5 +24,8 @@ class YOJIMBOT_UE_API IHitInterface
 
 public:
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnHit(const FVector& ImpactPoint, const APawn* Causer);
+
 	virtual void TakeHit(const FVector& ImpactPoint, const APawn* Causer) = 0;
 };
