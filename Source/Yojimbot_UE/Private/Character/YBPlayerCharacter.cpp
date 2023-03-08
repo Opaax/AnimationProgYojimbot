@@ -16,6 +16,7 @@
 #include "Engine/EngineTypes.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "../../Public/Components/YBComboComponent.h"
 
 
 AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UYBPlayerCharacterMovementComp>(ACharacter::CharacterMovementComponentName))
@@ -54,8 +55,8 @@ AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	//Create A combo component
+	m_comboComp = CreateDefaultSubobject<UYBComboComponent>(TEXT("ComboComponent"));
 }
 
 void AYBPlayerCharacter::EquipOneHandWeapon()
@@ -117,6 +118,21 @@ void AYBPlayerCharacter::OnAttackCollisionDisableDetected()
 	}
 }
 
+void AYBPlayerCharacter::OnComboStopDetected()
+{
+	if (m_characterActionState != ECharacterActionState::ECAS_AttackComboTransition)
+	{
+		if (m_comboComp)
+		{
+			m_comboComp->StopComboAnimation();
+		}
+
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("PrimaryAttack Stop")));
+
+
+		m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -211,6 +227,23 @@ void AYBPlayerCharacter::EquipWeapon(const FInputActionValue& Value)
 
 void AYBPlayerCharacter::PrimaryAttack(const FInputActionValue& Value)
 {
+	if (m_characterActionState == ECharacterActionState::ECAS_AttackComboTransition)
+	{
+		if (m_comboComp)
+		{
+			m_comboComp->PlayComboAnimation();
+
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("PrimaryAttack On Transition")));
+			}
+		}
+
+		m_characterActionState = ECharacterActionState::ECAS_Attacking;
+
+		return;
+	}
+
 	if (bIsWeaponOnHand && CanAttack())
 	{
 		if (m_animInstance != nullptr && m_attackMontage != nullptr)
@@ -226,28 +259,18 @@ void AYBPlayerCharacter::PrimaryAttack(const FInputActionValue& Value)
 				SetActorRotation(YawRotation);
 			}
 
-			m_animInstance->Montage_Play(m_attackMontage);
+			//m_animInstance->Montage_Play(m_attackMontage);
 
-			if(!m_animInstance->OnPlayMontageNotifyBegin.IsBound())
-				m_animInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &AYBPlayerCharacter::HandleOnMontageBegin);
+			if (m_comboComp)
+			{
+				m_comboComp->PlayComboAnimation();
+			}
 
 			m_characterActionState = ECharacterActionState::ECAS_Attacking;
 		}
 	}
 }
 
-void AYBPlayerCharacter::HandleOnMontageBegin(FName Name, const FBranchingPointNotifyPayload& N)
-{
-	UE_LOG(LogTemp, Warning, TEXT("YOOO"));
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(10, 5, FColor::Green, Name.ToString());
-	}
-
-	if(m_animInstance->OnPlayMontageNotifyBegin.IsBound())
-		m_animInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &AYBPlayerCharacter::HandleOnMontageBegin);
-
-}
 
 void AYBPlayerCharacter::SpawnDefaultWeapon()
 {

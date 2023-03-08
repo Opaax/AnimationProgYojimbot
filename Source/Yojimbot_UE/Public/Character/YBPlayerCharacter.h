@@ -16,6 +16,7 @@ class UInputMappingContext;
 class UInputAction;
 class UAnimInstance;
 class UAnimMontage;
+class UYBComboComponent;
 
 /**
  * 
@@ -59,7 +60,12 @@ protected:
 	float m_oneHandSwordSpeed = 500.f;
 	///////////// END MOVEMENT /////////////
 
-	////////////// Animation /////////////////
+	///////////// COMBO /////////////
+	UPROPERTY(EditAnywhere, Category = Combo, meta = (DisplayName = "ComboComponent"))
+	TObjectPtr<UYBComboComponent> m_comboComp;
+	//////////// END COMBO //////////
+
+	////////////// ANIMATION /////////////////
 
 	UPROPERTY(EditDefaultsOnly, BlueprintGetter = GetUseRootMotion, Category = "Animation/Settings")
 	bool bUseRootMotion = false;
@@ -137,6 +143,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnAttackCollisionDisableDetected();
+
+	UFUNCTION()
+	void OnComboStopDetected();
 
 protected:
 
