@@ -14,4 +14,5 @@ class YOJIMBOT_UE_API UYBComboAnimNotifyWindow : public UAnimNotify_PlayMontageN
 {
 	GENERATED_BODY()
 	
+		//virtual GetNotify
 };

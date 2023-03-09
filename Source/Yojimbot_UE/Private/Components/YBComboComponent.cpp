@@ -3,6 +3,7 @@
 
 #include "Components/YBComboComponent.h"
 #include "GameFramework/Character.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values for this component's properties
 UYBComboComponent::UYBComboComponent(const FObjectInitializer& ObjectInitializer) :Super(ObjectInitializer)
@@ -39,21 +40,28 @@ void UYBComboComponent::PlayComboAnimation()
 	if (m_linkedAnimInstance && m_comboMontage)
 	{
 		FName lSectionToJump = FName(FString::Printf(TEXT("%s%d"), *m_sectionNameMontage.ToString(), m_currentAttackIndex));
-		FName lPrevSection = FName(FString::Printf(TEXT("%s%d"), *m_sectionNameMontage.ToString(), m_currentAttackIndex - 1));
 
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(5, 5, FColor::Yellow, FString::Printf(TEXT("Index: %d, SectionName:%s"), m_currentAttackIndex, *lSectionToJump.ToString()));
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow, FString::Printf(TEXT("Index: %d, SectionName:%s"), m_currentAttackIndex, *lSectionToJump.ToString()));
 		}
 
-		if(!m_linkedAnimInstance->Montage_IsPlaying(m_comboMontage))
+		if (!m_linkedAnimInstance->Montage_IsPlaying(m_comboMontage))
+		{
 			m_linkedAnimInstance->Montage_Play(m_comboMontage);
+
+			if(!m_linkedAnimInstance->OnPlayMontageNotifyBegin.IsBound())
+				m_linkedAnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UYBComboComponent::ComboNotifyBegin);
+
+			if(!m_linkedAnimInstance->OnPlayMontageNotifyEnd.IsBound())
+				m_linkedAnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &UYBComboComponent::ComboNotifyEnd);
+		}
 		else
 		{
 			m_linkedAnimInstance->Montage_JumpToSection(lSectionToJump, m_comboMontage);
-			//m_linkedAnimInstance->Montage_SetNextSection(lPrevSection, lSectionToJump, m_comboMontage);
 		}
 
+		m_comboState = EComboState::ECS_OnAttack;
 		m_currentAttackIndex++;
 	}
 	else
@@ -70,12 +78,50 @@ void UYBComboComponent::PlayComboAnimation()
 	}
 }
 
+void UYBComboComponent::ComboNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayLoad)
+{
+	if (NotifyName == m_endComboNotifyName)
+	{
+		OnComboFinish.Broadcast();
+
+		m_currentAttackIndex = m_startIndexAttack;
+
+		m_comboState = EComboState::ECS_OnWaiting;
+
+		if (!m_linkedAnimInstance->OnPlayMontageNotifyBegin.IsBound())
+			m_linkedAnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UYBComboComponent::ComboNotifyBegin);
+
+		if (!m_linkedAnimInstance->OnPlayMontageNotifyEnd.IsBound())
+			m_linkedAnimInstance->OnPlayMontageNotifyEnd.RemoveDynamic(this, &UYBComboComponent::ComboNotifyEnd);
+
+		return;
+	}
+
+	m_comboState = EComboState::ECS_OnAttackWindow;
+}
+
+void UYBComboComponent::ComboNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayLoad)
+{
+	if (NotifyName.ToString().Equals(FString::Printf(TEXT("%s_Window"), *m_linkedAnimInstance->Montage_GetCurrentSection().ToString())))
+	{
+		if (!m_linkedAnimInstance->OnPlayMontageNotifyBegin.IsBound())
+			m_linkedAnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UYBComboComponent::ComboNotifyBegin);
+
+		if (!m_linkedAnimInstance->OnPlayMontageNotifyEnd.IsBound())
+			m_linkedAnimInstance->OnPlayMontageNotifyEnd.RemoveDynamic(this, &UYBComboComponent::ComboNotifyEnd);
+
+		m_currentAttackIndex = m_startIndexAttack;
+
+		m_comboState = EComboState::ECS_OnWaiting;
+
+		OnComboEnd.Broadcast();
+	}	
+}
+
 void UYBComboComponent::StopComboAnimation()
 {
 	if (m_linkedAnimInstance && m_comboMontage)
 	{
-		//m_linkedAnimInstance->Montage_Stop(.25f,m_comboMontage);
-
 		m_currentAttackIndex = m_startIndexAttack;
 	}
 	else

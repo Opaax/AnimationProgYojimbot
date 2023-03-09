@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../ComboSystem/YBComboState.h"
 #include "YBComboComponent.generated.h"
 
 class UAnimMontage;
 class UAnimInstance;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FComboDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class YOJIMBOT_UE_API UYBComboComponent : public UActorComponent
@@ -24,6 +27,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, BlueprintGetter = GetSectionNameBase, Category = ComboComponent, meta = (DisplayName = "SectionNameBase"))
 	FName m_sectionNameMontage = FName("Attack_");
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = ComboComponent, meta = (DisplayName = "NotifyWindowSuffix"))
+	FString m_notifyWindowSuffix = FString("_Window");
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = ComboComponent, meta = (DisplayName = "EndComboNotifyName"))
+	FName m_endComboNotifyName = FName("End_Combo");
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, BlueprintGetter = GetNumAttackInCombo, Category = ComboComponent, meta = (DisplayName = "NumAttackInCombo"))
 	int32 m_numAttackInCombo;
 
@@ -33,7 +42,19 @@ protected:
 	UPROPERTY(BlueprintReadwrite, VisibleAnywhere, BlueprintGetter = GetCurrentAttackIndex, Category = ComboComponent)
 	int32 m_currentAttackIndex;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = GetComboState, Category = ComboComponent, meta = (DisplayName = "ComboState"))
+	EComboState m_comboState = EComboState::ECS_OnWaiting;
+
 public:
+
+	UPROPERTY(BlueprintAssignable, Category = Callback)
+	FComboDelegate OnComboEnd;
+
+	UPROPERTY(BlueprintAssignable, Category = Callback)
+	FComboDelegate OnComboFinish;
+
+	UPROPERTY(BlueprintAssignable, Category = Callback)
+	FComboDelegate OnComboCancel;
 
 protected:
 
@@ -45,6 +66,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StopComboAnimation();
+
+	UFUNCTION()
+	void ComboNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayLoad);
+	UFUNCTION()
+	void ComboNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayLoad);
 
 	/////////// GETTER / SETTER ///////////
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -61,6 +87,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE int32 GetStartIndexAttack() const { return m_startIndexAttack; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE EComboState GetComboState() const { return m_comboState; }
 
 /////////// OVERRRIDES /////////
 protected:

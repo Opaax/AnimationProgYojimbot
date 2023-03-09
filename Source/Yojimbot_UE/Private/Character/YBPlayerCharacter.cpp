@@ -17,6 +17,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "../../Public/Components/YBComboComponent.h"
+#include "../../Public/ComboSystem/YBComboState.h"
 
 
 AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UYBPlayerCharacterMovementComp>(ACharacter::CharacterMovementComponentName))
@@ -118,20 +119,62 @@ void AYBPlayerCharacter::OnAttackCollisionDisableDetected()
 	}
 }
 
-void AYBPlayerCharacter::OnComboStopDetected()
+void AYBPlayerCharacter::StartComboAttack()
 {
-	if (m_characterActionState != ECharacterActionState::ECAS_AttackComboTransition)
+	if (bIsWeaponOnHand && CanAttack())
+	{
+		if (m_animInstance != nullptr && m_attackMontage != nullptr)
+		{
+			if (bShouldRotateToControllerDirectionBeforeAttacking)
+			{
+				const FRotator Rotation = Controller->GetControlRotation();
+				const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+				SetActorRotation(YawRotation);
+			}
+
+
+			if (m_comboComp)
+			{
+				m_comboComp->PlayComboAnimation();
+
+				if(!m_comboComp->OnComboEnd.IsBound())
+					m_comboComp->OnComboEnd.AddDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+
+				if (!m_comboComp->OnComboFinish.IsBound())
+					m_comboComp->OnComboFinish.AddDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+			}
+
+			m_characterActionState = ECharacterActionState::ECAS_Attacking;
+		}
+	}
+}
+
+bool AYBPlayerCharacter::CheckComboCompletion()
+{
+	if (m_comboComp->GetComboState() == EComboState::ECS_OnAttackWindow)
 	{
 		if (m_comboComp)
 		{
-			m_comboComp->StopComboAnimation();
+			m_comboComp->PlayComboAnimation();
 		}
 
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("PrimaryAttack Stop")));
+		m_characterActionState = ECharacterActionState::ECAS_Attacking;
 
-
-		m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
+		return true;
 	}
+
+	return false;
+}
+
+void AYBPlayerCharacter::OnComboEnd()
+{
+	m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
+}
+
+void AYBPlayerCharacter::OnComboFinish()
+{
+	m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -227,46 +270,11 @@ void AYBPlayerCharacter::EquipWeapon(const FInputActionValue& Value)
 
 void AYBPlayerCharacter::PrimaryAttack(const FInputActionValue& Value)
 {
-	if (m_characterActionState == ECharacterActionState::ECAS_AttackComboTransition)
+	if (!CheckComboCompletion())
 	{
-		if (m_comboComp)
+		if (m_comboComp->GetComboState() == EComboState::ECS_OnWaiting)
 		{
-			m_comboComp->PlayComboAnimation();
-
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("PrimaryAttack On Transition")));
-			}
-		}
-
-		m_characterActionState = ECharacterActionState::ECAS_Attacking;
-
-		return;
-	}
-
-	if (bIsWeaponOnHand && CanAttack())
-	{
-		if (m_animInstance != nullptr && m_attackMontage != nullptr)
-		{
-			if (bShouldRotateToControllerDirectionBeforeAttacking)
-			{
-				const FRotator Rotation = Controller->GetControlRotation();
-				const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-
-				//const FRotator lNewRot = UKismetMathLibrary::RInterpTo(GetActorRotation(), YawRotation, GetWorld()->GetDeltaSeconds(), 5);
-
-				SetActorRotation(YawRotation);
-			}
-
-			//m_animInstance->Montage_Play(m_attackMontage);
-
-			if (m_comboComp)
-			{
-				m_comboComp->PlayComboAnimation();
-			}
-
-			m_characterActionState = ECharacterActionState::ECAS_Attacking;
+			StartComboAttack();
 		}
 	}
 }
@@ -343,3 +351,5 @@ bool AYBPlayerCharacter::CanEquipWeapon()
 {
 	return m_characterActionState == ECharacterActionState::ECAS_Unoccupied && m_characterState == ECharacterState::ECS_Unarmed;
 }
+
+

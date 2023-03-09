@@ -144,9 +144,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnAttackCollisionDisableDetected();
 
-	UFUNCTION()
-	void OnComboStopDetected();
-
 protected:
 
 	/** Called for movement input */
@@ -181,6 +178,18 @@ protected:
 
 	UFUNCTION()
 	bool CanEquipWeapon();
+
+	UFUNCTION()
+	bool CheckComboCompletion();
+
+	UFUNCTION()
+	void StartComboAttack();
+
+	UFUNCTION()
+	void OnComboEnd();
+
+	UFUNCTION()
+	void OnComboFinish();
 
 	//////////////// GETTER SETTER //////////////////////
 public:
