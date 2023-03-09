@@ -60,29 +60,6 @@ AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	m_comboComp = CreateDefaultSubobject<UYBComboComponent>(TEXT("ComboComponent"));
 }
 
-void AYBPlayerCharacter::EquipOneHandWeapon()
-{
-	bIsWeaponOnHand = true;
-	m_characterState = ECharacterState::ECS_OneHandWeapon;
-	GetCharacterMovement()->MaxWalkSpeed = m_oneHandSwordSpeed;
-
-	// add battle mapping context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(m_oneHandSwordMappingContext, 1);
-		}
-	}
-
-	if (m_weapon != nullptr)
-	{
-		FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
-
-		m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketOneSwordHand);
-	}
-}
-
 void AYBPlayerCharacter::BeginPlay()
 {
 	// Call the base class  
@@ -102,6 +79,36 @@ void AYBPlayerCharacter::BeginPlay()
 	SpawnDefaultWeapon();
 	GetAnimInstanceFromMesh();
 }
+
+void AYBPlayerCharacter::SpawnDefaultWeapon()
+{
+	UWorld* lWorld = GetWorld();
+
+	if (lWorld != nullptr)
+	{
+		FActorSpawnParameters lParams = FActorSpawnParameters();
+		lParams.Owner = this;
+
+		m_weapon = lWorld->SpawnActor<AYBWeaponBase>(m_weaponClassToSpawn, lParams);
+
+		if (m_weapon != nullptr)
+		{
+			FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
+
+			m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
+		}
+	}
+}
+
+void AYBPlayerCharacter::GetAnimInstanceFromMesh()
+{
+	if (GetMesh() != nullptr && GetMesh()->GetAnimInstance() != nullptr)
+	{
+		m_animInstance = GetMesh()->GetAnimInstance();
+	}
+}
+
+///////////////////////// Combo /////////////////////////////
 
 void AYBPlayerCharacter::OnAttackCollisionEnableDetected()
 {
@@ -136,13 +143,10 @@ void AYBPlayerCharacter::StartComboAttack()
 
 			if (m_comboComp)
 			{
+				//the component will check by itself which anim on combo to play
 				m_comboComp->PlayComboAnimation();
 
-				if(!m_comboComp->OnComboEnd.IsBound())
-					m_comboComp->OnComboEnd.AddDynamic(this, &AYBPlayerCharacter::OnComboEnd);
-
-				if (!m_comboComp->OnComboFinish.IsBound())
-					m_comboComp->OnComboFinish.AddDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+				ListenComboEvents();
 			}
 
 			m_characterActionState = ECharacterActionState::ECAS_Attacking;
@@ -150,15 +154,27 @@ void AYBPlayerCharacter::StartComboAttack()
 	}
 }
 
+void AYBPlayerCharacter::ListenComboEvents()
+{
+	if (!m_comboComp->OnComboEnd.IsBound())
+		m_comboComp->OnComboEnd.AddDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+
+	if (!m_comboComp->OnComboFinish.IsBound())
+		m_comboComp->OnComboFinish.AddDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+}
+
 bool AYBPlayerCharacter::CheckComboCompletion()
 {
+	//if Combo state is on Attack window this mean next input will continue the combo
 	if (m_comboComp->GetComboState() == EComboState::ECS_OnAttackWindow)
 	{
 		if (m_comboComp)
 		{
+			//the component will check by itself which anim on combo to play
 			m_comboComp->PlayComboAnimation();
 		}
 
+		//make sure the ActionState is attacking
 		m_characterActionState = ECharacterActionState::ECAS_Attacking;
 
 		return true;
@@ -170,15 +186,27 @@ bool AYBPlayerCharacter::CheckComboCompletion()
 void AYBPlayerCharacter::OnComboEnd()
 {
 	m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
+
+	StopListeningComboEvent();
 }
 
 void AYBPlayerCharacter::OnComboFinish()
 {
 	m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
+
+	StopListeningComboEvent();
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
+void AYBPlayerCharacter::StopListeningComboEvent()
+{
+	if (!m_comboComp->OnComboEnd.IsBound())
+		m_comboComp->OnComboEnd.RemoveDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+
+	if (!m_comboComp->OnComboFinish.IsBound())
+		m_comboComp->OnComboFinish.RemoveDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+}
+
+///////////////////////// Input /////////////////////////////
 
 void AYBPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -279,35 +307,6 @@ void AYBPlayerCharacter::PrimaryAttack(const FInputActionValue& Value)
 	}
 }
 
-
-void AYBPlayerCharacter::SpawnDefaultWeapon()
-{
-	UWorld* lWorld = GetWorld();
-
-	if (lWorld != nullptr)
-	{
-		FActorSpawnParameters lParams = FActorSpawnParameters();
-		lParams.Owner = this;
-
-		m_weapon = lWorld->SpawnActor<AYBWeaponBase>(m_weaponClassToSpawn, lParams);
-
-		if (m_weapon != nullptr)
-		{
-			FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
-
-			m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
-		}
-	}
-}
-
-void AYBPlayerCharacter::GetAnimInstanceFromMesh()
-{
-	if (GetMesh() != nullptr && GetMesh()->GetAnimInstance() != nullptr)
-	{
-		m_animInstance = GetMesh()->GetAnimInstance();
-	}
-}
-
 void AYBPlayerCharacter::TakeWeaponOnHand()
 {
 	if (!bIsWeaponOnHand && CanEquipWeapon())
@@ -316,6 +315,32 @@ void AYBPlayerCharacter::TakeWeaponOnHand()
 		{
 			m_animInstance->Montage_Play(m_equipMontage);
 		}
+	}
+}
+
+void AYBPlayerCharacter::EquipOneHandWeapon()
+{
+	bIsWeaponOnHand = true;
+	m_characterState = ECharacterState::ECS_OneHandWeapon;
+
+	//new speed while holding the weapon
+	GetCharacterMovement()->MaxWalkSpeed = m_oneHandSwordSpeed;
+
+	// add battle mapping context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(m_oneHandSwordMappingContext, 1);
+		}
+	}
+
+	//Setup new transform rules for the weapon
+	if (m_weapon != nullptr)
+	{
+		FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
+
+		m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketOneSwordHand);
 	}
 }
 

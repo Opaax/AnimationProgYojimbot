@@ -42,6 +42,9 @@ protected:
 	UPROPERTY(BlueprintReadwrite, VisibleAnywhere, BlueprintGetter = GetCurrentAttackIndex, Category = ComboComponent)
 	int32 m_currentAttackIndex;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = ComboComponent, meta = (DisplayName = "StopBlendoutTime"))
+	float m_stopBlendoutTime = .25f;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = GetComboState, Category = ComboComponent, meta = (DisplayName = "ComboState"))
 	EComboState m_comboState = EComboState::ECS_OnWaiting;
 
@@ -58,6 +61,14 @@ public:
 
 protected:
 
+	UFUNCTION()
+	void ResetIndexInternal();
+
+	UFUNCTION()
+	void ListenMontageEvent();
+	UFUNCTION()
+	void StopListeningMontageEvent();
+
 public:	
 	UYBComboComponent(const FObjectInitializer& ObjectInitializer);
 
@@ -66,6 +77,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StopComboAnimation();
+
+	UFUNCTION(BlueprintCallable)
+	void CancelComboAnimation();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetCombo();
 
 	UFUNCTION()
 	void ComboNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayLoad);

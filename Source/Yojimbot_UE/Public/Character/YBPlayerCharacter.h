@@ -191,6 +191,12 @@ protected:
 	UFUNCTION()
 	void OnComboFinish();
 
+	UFUNCTION()
+	void ListenComboEvents();
+
+	UFUNCTION()
+	void StopListeningComboEvent();
+
 	//////////////// GETTER SETTER //////////////////////
 public:
 	/** Returns CameraBoom subobject **/
