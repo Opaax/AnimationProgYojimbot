@@ -5,10 +5,11 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "../../Public/Components/YBHealthComponent.h"
-
+#include "../../Public/UI/YBEnemyLifeBar.h"
 #include "../../Public/Utils/CustomDebugMacro.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/Controller.h"
+#include "Components/WidgetComponent.h"
 
 AYBEnemy::AYBEnemy()
 {
@@ -18,11 +19,34 @@ AYBEnemy::AYBEnemy()
 
 	InitMeshCollision();
 	InitHealthComponent();
+
+	m_lifeWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LifeWidgetComp"));
+	m_lifeWidgetComponent->SetupAttachment(GetRootComponent());
+	m_lifeWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	m_lifeWidgetComponent->SetWidgetClass(m_healthWidgetCompClass);
 }
 
 void AYBEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (m_lifeWidgetComponent != nullptr)
+	{
+		m_healthWidget = Cast<UYBEnemyLifeBar>(m_lifeWidgetComponent->GetWidget());
+
+		if (m_healthWidget && m_healthComponent)
+		{
+			m_healthWidget->InitializeValues(m_healthComponent->GetMaxHealth(), m_healthComponent->GetHealth());
+		}
+	}
+
+	if(m_healthComponent != nullptr)
+		m_healthComponent->OnHealthUpdate.AddDynamic(this, &AYBEnemy::OnHealthCompUpdate);
+}
+
+void AYBEnemy::OnHealthCompUpdate(const float Currenthealth, const float HealthRatio)
+{
+	m_healthWidget->UpdateLife(Currenthealth, HealthRatio);
 }
 
 void AYBEnemy::Tick(float DeltaTime)
@@ -116,5 +140,8 @@ void AYBEnemy::OnHit_Implementation(const FVector& ImpactPoint, const APawn* Cau
 
 float AYBEnemy::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+
+	m_healthComponent->GiveDamage(DamageAmount);
+	
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }

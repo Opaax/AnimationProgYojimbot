@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "YBHealthComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthUpdate, float, CurrentHealth, float, HealthRatio);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthUpdate, const float, CurrentHealth, const float, HealthRatio);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class YOJIMBOT_UE_API UYBHealthComponent : public UActorComponent
@@ -21,11 +21,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintGetter = GetMaxHealth,  meta = (DisplayName = "MaxHealth"))
 	float m_maxHealth;
 
+public:
+
 	UPROPERTY(BlueprintAssignable, Category = Callback)
 	FOnHealthUpdate OnHealthUpdate;
 
 public:	
 	UYBHealthComponent();
+
+	UFUNCTION()
+	void GiveDamage(const float Damage);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FORCEINLINE float GetHealth() const { return m_health; }
