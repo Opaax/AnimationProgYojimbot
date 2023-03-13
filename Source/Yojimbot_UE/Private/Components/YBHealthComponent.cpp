@@ -9,11 +9,23 @@ UYBHealthComponent::UYBHealthComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UYBHealthComponent::GiveDamage(const float Damage)
+{
+	m_health -= Damage;
+
+	//Use Setter to broadcast the callback
+	//also make sure to clamp the health
+	SetHealth(FMath::Clamp(m_health, 0.f, m_maxHealth));
+}
+
 
 // Called when the game starts
 void UYBHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Clamp then set by setter to broadcast the callback
+	SetHealth(FMath::Clamp(m_health, 0.f, m_maxHealth));
 }
 
 

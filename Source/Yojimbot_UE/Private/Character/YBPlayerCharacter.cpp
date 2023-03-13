@@ -15,6 +15,9 @@
 #include "Engine/World.h"
 #include "Engine/EngineTypes.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Animation/AnimNotifies/AnimNotify.h"
+#include "../../Public/Components/YBComboComponent.h"
+#include "../../Public/ComboSystem/YBComboState.h"
 
 
 AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UYBPlayerCharacterMovementComp>(ACharacter::CharacterMovementComponentName))
@@ -53,31 +56,8 @@ AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
-}
-
-void AYBPlayerCharacter::EquipOneHandWeapon()
-{
-	bIsWeaponOnHand = true;
-	m_characterState = ECharacterState::ECS_OneHandWeapon;
-	GetCharacterMovement()->MaxWalkSpeed = m_oneHandSwordSpeed;
-
-	// add battle mapping context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(m_oneHandSwordMappingContext, 1);
-		}
-	}
-
-	if (m_weapon != nullptr)
-	{
-		FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
-
-		m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketOneSwordHand);
-	}
+	//Create A combo component
+	m_comboComp = CreateDefaultSubobject<UYBComboComponent>(TEXT("ComboComponent"));
 }
 
 void AYBPlayerCharacter::BeginPlay()
@@ -100,6 +80,36 @@ void AYBPlayerCharacter::BeginPlay()
 	GetAnimInstanceFromMesh();
 }
 
+void AYBPlayerCharacter::SpawnDefaultWeapon()
+{
+	UWorld* lWorld = GetWorld();
+
+	if (lWorld != nullptr)
+	{
+		FActorSpawnParameters lParams = FActorSpawnParameters();
+		lParams.Owner = this;
+
+		m_weapon = lWorld->SpawnActor<AYBWeaponBase>(m_weaponClassToSpawn, lParams);
+
+		if (m_weapon != nullptr)
+		{
+			FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
+
+			m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
+		}
+	}
+}
+
+void AYBPlayerCharacter::GetAnimInstanceFromMesh()
+{
+	if (GetMesh() != nullptr && GetMesh()->GetAnimInstance() != nullptr)
+	{
+		m_animInstance = GetMesh()->GetAnimInstance();
+	}
+}
+
+///////////////////////// Combo /////////////////////////////
+
 void AYBPlayerCharacter::OnAttackCollisionEnableDetected()
 {
 	if (m_weapon != nullptr)
@@ -116,8 +126,87 @@ void AYBPlayerCharacter::OnAttackCollisionDisableDetected()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
+void AYBPlayerCharacter::StartComboAttack()
+{
+	if (bIsWeaponOnHand && CanAttack())
+	{
+		if (m_animInstance != nullptr && m_attackMontage != nullptr)
+		{
+			if (bShouldRotateToControllerDirectionBeforeAttacking)
+			{
+				const FRotator Rotation = Controller->GetControlRotation();
+				const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+				SetActorRotation(YawRotation);
+			}
+
+
+			if (m_comboComp)
+			{
+				//the component will check by itself which anim on combo to play
+				m_comboComp->PlayComboAnimation();
+
+				ListenComboEvents();
+			}
+
+			m_characterActionState = ECharacterActionState::ECAS_Attacking;
+		}
+	}
+}
+
+void AYBPlayerCharacter::ListenComboEvents()
+{
+	if (!m_comboComp->OnComboEnd.IsBound())
+		m_comboComp->OnComboEnd.AddDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+
+	if (!m_comboComp->OnComboFinish.IsBound())
+		m_comboComp->OnComboFinish.AddDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+}
+
+bool AYBPlayerCharacter::CheckComboCompletion()
+{
+	//if Combo state is on Attack window this mean next input will continue the combo
+	if (m_comboComp->GetComboState() == EComboState::ECS_OnAttackWindow)
+	{
+		if (m_comboComp)
+		{
+			//the component will check by itself which anim on combo to play
+			m_comboComp->PlayComboAnimation();
+		}
+
+		//make sure the ActionState is attacking
+		m_characterActionState = ECharacterActionState::ECAS_Attacking;
+
+		return true;
+	}
+
+	return false;
+}
+
+void AYBPlayerCharacter::OnComboEnd()
+{
+	m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
+
+	StopListeningComboEvent();
+}
+
+void AYBPlayerCharacter::OnComboFinish()
+{
+	m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
+
+	StopListeningComboEvent();
+}
+
+void AYBPlayerCharacter::StopListeningComboEvent()
+{
+	if (!m_comboComp->OnComboEnd.IsBound())
+		m_comboComp->OnComboEnd.RemoveDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+
+	if (!m_comboComp->OnComboFinish.IsBound())
+		m_comboComp->OnComboFinish.RemoveDynamic(this, &AYBPlayerCharacter::OnComboEnd);
+}
+
+///////////////////////// Input /////////////////////////////
 
 void AYBPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -209,52 +298,12 @@ void AYBPlayerCharacter::EquipWeapon(const FInputActionValue& Value)
 
 void AYBPlayerCharacter::PrimaryAttack(const FInputActionValue& Value)
 {
-	if (bIsWeaponOnHand && CanAttack())
+	if (!CheckComboCompletion())
 	{
-		if (m_animInstance != nullptr && m_attackMontage != nullptr)
+		if (m_comboComp->GetComboState() == EComboState::ECS_OnWaiting)
 		{
-			if (bShouldRotateToControllerDirectionBeforeAttacking)
-			{
-				const FRotator Rotation = Controller->GetControlRotation();
-				const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-
-				//const FRotator lNewRot = UKismetMathLibrary::RInterpTo(GetActorRotation(), YawRotation, GetWorld()->GetDeltaSeconds(), 5);
-
-				SetActorRotation(YawRotation);
-			}
-
-			m_animInstance->Montage_Play(m_attackMontage);
-			m_characterActionState = ECharacterActionState::ECAS_Attacking;
+			StartComboAttack();
 		}
-	}
-}
-
-void AYBPlayerCharacter::SpawnDefaultWeapon()
-{
-	UWorld* lWorld = GetWorld();
-
-	if (lWorld != nullptr)
-	{
-		FActorSpawnParameters lParams = FActorSpawnParameters();
-		lParams.Owner = this;
-
-		m_weapon = lWorld->SpawnActor<AYBWeaponBase>(m_weaponClassToSpawn, lParams);
-
-		if (m_weapon != nullptr)
-		{
-			FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
-
-			m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketScabber);
-		}
-	}
-}
-
-void AYBPlayerCharacter::GetAnimInstanceFromMesh()
-{
-	if (GetMesh() != nullptr && GetMesh()->GetAnimInstance() != nullptr)
-	{
-		m_animInstance = GetMesh()->GetAnimInstance();
 	}
 }
 
@@ -266,6 +315,32 @@ void AYBPlayerCharacter::TakeWeaponOnHand()
 		{
 			m_animInstance->Montage_Play(m_equipMontage);
 		}
+	}
+}
+
+void AYBPlayerCharacter::EquipOneHandWeapon()
+{
+	bIsWeaponOnHand = true;
+	m_characterState = ECharacterState::ECS_OneHandWeapon;
+
+	//new speed while holding the weapon
+	GetCharacterMovement()->MaxWalkSpeed = m_oneHandSwordSpeed;
+
+	// add battle mapping context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(m_oneHandSwordMappingContext, 1);
+		}
+	}
+
+	//Setup new transform rules for the weapon
+	if (m_weapon != nullptr)
+	{
+		FAttachmentTransformRules lTransRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false);
+
+		m_weapon->AttachToComponent(GetMesh(), lTransRules, m_nameSocketOneSwordHand);
 	}
 }
 
@@ -301,3 +376,5 @@ bool AYBPlayerCharacter::CanEquipWeapon()
 {
 	return m_characterActionState == ECharacterActionState::ECAS_Unoccupied && m_characterState == ECharacterState::ECS_Unarmed;
 }
+
+
