@@ -81,7 +81,7 @@ void AYBWeaponBase::OnBoxColliderOverlap(UPrimitiveComponent* OverlappedComponen
 		{
 			m_actorToIgnoreWhileOverlaping.AddUnique(lHitActor);
 
-			lHitInt->TakeHit(lTraceResult.ImpactPoint, Cast<APawn>(GetOwner()));
+			lHitInt->TakeHit(lTraceResult.ImpactPoint, lTraceResult.Normal, Cast<APawn>(GetOwner()));
 
 			UGameplayStatics::ApplyDamage(lHitActor, 10.f, Cast<APawn>(GetOwner())->GetController(), GetOwner(), UDamageType::StaticClass());
 		}

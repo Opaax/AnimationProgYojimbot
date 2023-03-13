@@ -28,4 +28,5 @@ public:
 	void OnHit(const FVector& ImpactPoint, const APawn* Causer);
 
 	virtual void TakeHit(const FVector& ImpactPoint, const APawn* Causer) = 0;
+	virtual void TakeHit(const FVector& ImpactPoint, const FVector& Normal, const APawn* Causer) = 0;
 };
