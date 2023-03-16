@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
 
+#include "../../Public/Utils/CustomDebugMacro.h"
+
 UYBComboComponent::UYBComboComponent(const FObjectInitializer& ObjectInitializer) :Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -115,6 +117,8 @@ void UYBComboComponent::ComboNotifyEnd(FName NotifyName, const FBranchingPointNo
 	//Create name to compare with notify name
 	FName lNameToCheck = FName(FString::Printf(TEXT("%s%s"), *m_linkedAnimInstance->Montage_GetCurrentSection().ToString(), *m_notifyWindowSuffix));
 
+	UE_LOG(LogTemp, Error, TEXT("%s"), *lNameToCheck.ToString());
+
 	if (NotifyName == lNameToCheck)
 	{
 		m_comboState = EComboState::ECS_OnWaiting;
@@ -124,6 +128,13 @@ void UYBComboComponent::ComboNotifyEnd(FName NotifyName, const FBranchingPointNo
 
 		OnComboEnd.Broadcast();
 	}	
+
+	m_comboState = EComboState::ECS_OnWaiting;
+
+	ResetIndexInternal();
+	StopListeningMontageEvent();
+
+	OnComboEnd.Broadcast();
 }
 
 void UYBComboComponent::StopComboAnimation()

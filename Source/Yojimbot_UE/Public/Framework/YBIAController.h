@@ -14,4 +14,8 @@ class YOJIMBOT_UE_API AYBIAController : public AAIController
 {
 	GENERATED_BODY()
 	
+//////////// OVERRIDE ////////////
+protected:
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
 };
