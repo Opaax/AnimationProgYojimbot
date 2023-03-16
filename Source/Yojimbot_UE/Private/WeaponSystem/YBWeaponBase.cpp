@@ -12,6 +12,7 @@
 #include "../../Public/DamageSystem/HitInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AYBWeaponBase::AYBWeaponBase()
@@ -81,7 +82,7 @@ void AYBWeaponBase::OnBoxColliderOverlap(UPrimitiveComponent* OverlappedComponen
 		{
 			m_actorToIgnoreWhileOverlaping.AddUnique(lHitActor);
 
-			lHitInt->TakeHit(lTraceResult.ImpactPoint, Cast<APawn>(GetOwner()));
+			lHitInt->TakeHit(lTraceResult.ImpactPoint, lTraceResult.Normal, Cast<APawn>(GetOwner()));
 
 			UGameplayStatics::ApplyDamage(lHitActor, 10.f, Cast<APawn>(GetOwner())->GetController(), GetOwner(), UDamageType::StaticClass());
 		}
@@ -96,16 +97,23 @@ void AYBWeaponBase::Tick(float DeltaTime)
 
 void AYBWeaponBase::ActivateAttackCollision()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Activate"));
 	m_attackCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void AYBWeaponBase::DesactivateAttackCollision()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Desactivate"));
-
 	m_attackCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	m_actorToIgnoreWhileOverlaping.Empty();
+}
+
+FVector AYBWeaponBase::GetForwardFromRotation()
+{
+	return UKismetMathLibrary::GetForwardVector(GetActorRotation());
+}
+
+FVector AYBWeaponBase::GetUpFromRotation()
+{
+	return UKismetMathLibrary::GetUpVector(GetActorRotation());
 }
 

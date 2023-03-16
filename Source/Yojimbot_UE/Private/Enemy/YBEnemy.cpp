@@ -126,7 +126,14 @@ void AYBEnemy::ComputeHitReactionAngle(const FVector& ImpactPoint, const APawn* 
 
 }
 
-void AYBEnemy::TakeHit(const FVector& ImpactPoint,const APawn* Causer)
+void AYBEnemy::TakeHit(const FVector& ImpactPoint, const APawn* Causer)
+{
+	FVector lNormal = FVector();
+
+	TakeHit(ImpactPoint, lNormal, Causer);
+}
+
+void AYBEnemy::TakeHit(const FVector& ImpactPoint, const FVector& Normal, const APawn* Causer)
 {
 	ComputeHitReactionAngle(ImpactPoint, Causer);
 

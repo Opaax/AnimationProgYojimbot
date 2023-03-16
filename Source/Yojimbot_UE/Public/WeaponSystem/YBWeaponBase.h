@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "../SliceableSystem/SlicerInterface.h"
 #include "YBWeaponBase.generated.h"
 
 class UBoxComponent;
@@ -11,7 +12,7 @@ class USceneComponent;
 class UPrimitiveComponent;
 
 UCLASS()
-class YOJIMBOT_UE_API AYBWeaponBase : public AActor
+class YOJIMBOT_UE_API AYBWeaponBase : public AActor, public ISlicerInterface
 {
 	GENERATED_BODY()
 	
@@ -41,22 +42,30 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Collision)
 	TArray<AActor*> m_actorToIgnoreWhileOverlaping;
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	virtual void BeginDestroy() override;
-
 	UFUNCTION()
 	void OnBoxColliderOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE UStaticMeshComponent* GetMesh() const { return m_mesh; }
 
 	UFUNCTION(BlueprintCallable,Category = Collision)
 	void ActivateAttackCollision();
 
 	UFUNCTION(BlueprintCallable, Category = Collision)
 	void DesactivateAttackCollision();
+
+
+	//ISlicerInterface
+	virtual FVector GetForwardFromRotation();
+	virtual FVector GetUpFromRotation();
+
+	////////// GETTER / SETTER //////////
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE UStaticMeshComponent* GetMesh() const { return m_mesh; }
+
+	/////////// OVERRIDE /////////////
+protected:
+	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
+public:
+	virtual void Tick(float DeltaTime) override;
+	/////////// END OVERRIDE ///////////
 };

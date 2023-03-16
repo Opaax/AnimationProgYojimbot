@@ -19,6 +19,8 @@
 #include "../../Public/Components/YBComboComponent.h"
 #include "../../Public/ComboSystem/YBComboState.h"
 
+#include "../../Public/Utils/CustomDebugMacro.h"
+
 
 AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UYBPlayerCharacterMovementComp>(ACharacter::CharacterMovementComponentName))
 {
@@ -114,6 +116,7 @@ void AYBPlayerCharacter::OnAttackCollisionEnableDetected()
 {
 	if (m_weapon != nullptr)
 	{
+		DEBUG_LOG(TEXT("WeaponColl activate"));
 		m_weapon->ActivateAttackCollision();
 	}
 }
@@ -122,6 +125,7 @@ void AYBPlayerCharacter::OnAttackCollisionDisableDetected()
 {
 	if (m_weapon != nullptr)
 	{
+		DEBUG_LOG(TEXT("WeaponColl Desactivate"));
 		m_weapon->DesactivateAttackCollision();
 	}
 }

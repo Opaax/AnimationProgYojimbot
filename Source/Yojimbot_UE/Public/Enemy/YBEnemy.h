@@ -82,6 +82,7 @@ public:
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent&  DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual void TakeHit(const FVector& ImpactPoint, const APawn* Causer) override;
+	virtual void TakeHit(const FVector& ImpactPoint,const FVector& Normal, const APawn* Causer) override;
 
 	virtual void OnHit_Implementation(const FVector& ImpactPoint, const APawn* Causer) override;
 };
