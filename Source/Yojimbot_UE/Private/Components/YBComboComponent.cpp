@@ -64,17 +64,18 @@ void UYBComboComponent::PlayComboAnimation()
 {
 	if (m_linkedAnimInstance && m_comboMontage)
 	{
-		FName lSectionToJump = FName(FString::Printf(TEXT("%s%d"), *m_sectionNameMontage.ToString(), m_currentAttackIndex));
+		m_currentMontageSectionName = FName(FString::Printf(TEXT("%s%d"), *m_sectionNameMontage.ToString(), m_currentAttackIndex));
 
 		if (!m_linkedAnimInstance->Montage_IsPlaying(m_comboMontage))
 		{
 			m_linkedAnimInstance->Montage_Play(m_comboMontage);
+			m_linkedAnimInstance->Montage_JumpToSection(m_currentMontageSectionName, m_comboMontage);
 
 			ListenMontageEvent();
 		}
 		else
 		{
-			m_linkedAnimInstance->Montage_JumpToSection(lSectionToJump, m_comboMontage);
+			m_linkedAnimInstance->Montage_JumpToSection(m_currentMontageSectionName, m_comboMontage);
 		}
 
 		m_comboState = EComboState::ECS_OnAttack;
@@ -97,6 +98,8 @@ void UYBComboComponent::PlayComboAnimation()
 
 void UYBComboComponent::ComboNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayLoad)
 {
+	UE_LOG(LogTemp, Error, TEXT("%s"), *NotifyName.ToString());
+
 	if (NotifyName == m_endComboNotifyName)
 	{
 		m_comboState = EComboState::ECS_OnWaiting;
@@ -115,11 +118,9 @@ void UYBComboComponent::ComboNotifyBegin(FName NotifyName, const FBranchingPoint
 void UYBComboComponent::ComboNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayLoad)
 {
 	//Create name to compare with notify name
-	FName lNameToCheck = FName(FString::Printf(TEXT("%s%s"), *m_linkedAnimInstance->Montage_GetCurrentSection().ToString(), *m_notifyWindowSuffix));
+	FName lNameToCheck = FName(FString::Printf(TEXT("%s%s"), *m_currentMontageSectionName.ToString(), *m_notifyWindowSuffix));
 
-	UE_LOG(LogTemp, Error, TEXT("%s"), *lNameToCheck.ToString());
-
-	if (NotifyName == lNameToCheck)
+	if (NotifyName == lNameToCheck || NotifyName.IsNone())
 	{
 		m_comboState = EComboState::ECS_OnWaiting;
 
@@ -127,14 +128,7 @@ void UYBComboComponent::ComboNotifyEnd(FName NotifyName, const FBranchingPointNo
 		StopListeningMontageEvent();
 
 		OnComboEnd.Broadcast();
-	}	
-
-	m_comboState = EComboState::ECS_OnWaiting;
-
-	ResetIndexInternal();
-	StopListeningMontageEvent();
-
-	OnComboEnd.Broadcast();
+	}
 }
 
 void UYBComboComponent::StopComboAnimation()

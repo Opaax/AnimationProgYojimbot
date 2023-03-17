@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, BlueprintGetter = GetSectionNameBase, Category = ComboComponent, meta = (DisplayName = "SectionNameBase"))
 	FName m_sectionNameMontage = FName("Attack_");
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, BlueprintGetter = GetSectionNameBase, Category = ComboComponent, meta = (DisplayName = "SectionNameBase"))
+	FName m_currentMontageSectionName = FName();
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = ComboComponent, meta = (DisplayName = "NotifyWindowSuffix"))
 	FString m_notifyWindowSuffix = FString("_Window");
 

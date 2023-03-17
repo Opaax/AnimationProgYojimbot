@@ -29,10 +29,10 @@ class YOJIMBOT_UE_API AYBPlayerCharacter : public AYBCharacter
 protected:
 	////////////////// STATE //////////////////
 
-	UPROPERTY(BlueprintGetter = GetCurrentState, BlueprintSetter = SetCurrentSate)
+	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetCurrentState, BlueprintSetter = SetCurrentSate)
 	ECharacterState m_characterState = ECharacterState::ECS_Unarmed;
 
-	UPROPERTY(BlueprintGetter = GetCurrentActionState, BlueprintSetter = SetCurrentActionSate)
+	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetCurrentActionState, BlueprintSetter = SetCurrentActionSate)
 	ECharacterActionState m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
 	///////////////// END STATE ///////////////
 
