@@ -15,6 +15,6 @@
 }
 
 //////////// LOG ///////////////////
-#define DEBUG_ERROR(...) UE_LOG(LogTemp,Error,__VA_ARGS__)
-#define DEBUG_WARNING(...) UE_LOG(LogTemp,Warning,__VA_ARGS__)
-#define DEBUG_LOG(...) UE_LOG(LogTemp,Log,__VA_ARGS__)
+#define DEBUG_ERROR(Format,...) UE_LOG(LogTemp,Error,Format,__VA_ARGS__)
+#define DEBUG_WARNING(Format,...) UE_LOG(LogTemp,Warning,Format,__VA_ARGS__)
+#define DEBUG_LOG(Format,...) UE_LOG(LogTemp,Log,Format,__VA_ARGS__)

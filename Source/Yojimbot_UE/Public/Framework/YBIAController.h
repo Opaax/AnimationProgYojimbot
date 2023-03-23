@@ -26,7 +26,7 @@ protected:
 
 	/////////// BLACKBOARD //////////
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Blackboard/Name", meta = (DisplayName = "OnSightKeyName"))
-	FName m_isOnSightKeyName = FName("bIsOnSight");
+	FName m_isOnSightKeyName = FName("bIsPlayerOnSight");
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Blackboard/HashID")
 	uint8 m_isOnSightKey;
@@ -44,6 +44,9 @@ protected:
 
 public:
 	AYBIAController();
+
+	void SetOnSightValue(bool NewValue);
+	void SetTargetActorValue(AActor* NewValue);
 	
 //////////// OVERRIDE ////////////
 protected:

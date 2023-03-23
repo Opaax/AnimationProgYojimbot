@@ -45,3 +45,19 @@ void AYBIAController::GetHashBlackboardIDs()
 		m_targetActorKey = m_blackboardComp->GetKeyID(m_targetActorKeyName);
 	}
 }
+
+void AYBIAController::SetOnSightValue(bool NewValue)
+{
+	if (m_blackboardComp)
+	{
+		m_blackboardComp->SetValueAsBool(m_blackboardComp->GetKeyName(m_isOnSightKey), NewValue);
+	}
+}
+
+void AYBIAController::SetTargetActorValue(AActor* NewValue)
+{
+	if (m_blackboardComp) 
+	{
+		m_blackboardComp->SetValueAsObject(m_blackboardComp->GetKeyName(m_targetActorKey), NewValue);
+	}
+}

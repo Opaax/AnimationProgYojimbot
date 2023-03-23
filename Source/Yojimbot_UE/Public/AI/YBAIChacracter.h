@@ -33,10 +33,22 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, BlueprintGetter = GetYBController, BlueprintSetter = SetYBController, Category = Controller)
 	TObjectPtr<AYBIAController> m_YBController;
 
+	//////////// Animation /////////////
+	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetYawRotationAngleToTarget, BlueprintSetter = SetYawRotationAngleToTarget, Category = "Animation/Settings", meta = (DisplayName = "YawRotationAngleToTarget"))
+	float m_yawRotationAngleToTarget = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetPitchRotationAngleToTarget, BlueprintSetter = SetPitchRotationAngleToTarget, Category = "Animation/Settings", meta = (DisplayName = "PitchRotationAngleToTarget"))
+	float m_pitchRotationAngleToTarget = 0;
+
 protected:
 
 	UFUNCTION(BlueprintCallable, Category = "AI/Perception")
 	virtual void InitPerceptionListener();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetOnSightBlackboardValue(bool NewValue);
+	UFUNCTION(BlueprintCallable)
+	virtual void SetTargetActorBlackboardValue(AActor* NewValue);
 
 public:
 	AYBAIChacracter(const FObjectInitializer& ObjectInitializer);
@@ -44,6 +56,7 @@ public:
 	UFUNCTION()
 	void OnPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus);
 
+	//////// GETTER / SETTER /////////
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const {return m_behaviorTree;}
 
@@ -51,6 +64,16 @@ public:
 	FORCEINLINE AYBIAController* GetYBController() const {return m_YBController;}
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE float GetYawRotationAngleToTarget() const { return m_yawRotationAngleToTarget; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetYawRotationAngleToTarget(float Value) { m_yawRotationAngleToTarget = Value; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE float GetPitchRotationAngleToTarget() const { return m_pitchRotationAngleToTarget; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetPitchRotationAngleToTarget(float Value) { m_pitchRotationAngleToTarget = Value; }
+
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetYBController(AYBIAController* YBController) { m_YBController = YBController; }
 
 //////////// OVERRRIDE ///////////////
