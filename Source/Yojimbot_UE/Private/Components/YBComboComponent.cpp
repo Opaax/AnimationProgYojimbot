@@ -98,8 +98,6 @@ void UYBComboComponent::PlayComboAnimation()
 
 void UYBComboComponent::ComboNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayLoad)
 {
-	UE_LOG(LogTemp, Error, TEXT("%s"), *NotifyName.ToString());
-
 	if (NotifyName == m_endComboNotifyName)
 	{
 		m_comboState = EComboState::ECS_OnWaiting;
@@ -120,6 +118,7 @@ void UYBComboComponent::ComboNotifyEnd(FName NotifyName, const FBranchingPointNo
 	//Create name to compare with notify name
 	FName lNameToCheck = FName(FString::Printf(TEXT("%s%s"), *m_currentMontageSectionName.ToString(), *m_notifyWindowSuffix));
 
+	//Broadcast even if the name is None
 	if (NotifyName == lNameToCheck || NotifyName.IsNone())
 	{
 		m_comboState = EComboState::ECS_OnWaiting;

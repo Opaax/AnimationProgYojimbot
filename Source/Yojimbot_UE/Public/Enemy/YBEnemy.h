@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "../AI/YBAIChacracter.h"
 #include "../DamageSystem/HitInterface.h"
 #include "YBEnemy.generated.h"
 
@@ -15,7 +15,7 @@ class UWidgetComponent;
 class UYBEnemyLifeBar;
 
 UCLASS()
-class YOJIMBOT_UE_API AYBEnemy : public ACharacter, public IHitInterface
+class YOJIMBOT_UE_API AYBEnemy : public AYBAIChacracter, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -36,7 +36,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation/Hit", meta = (DisplayName = "HitForwardLayerName"))
 	FName m_hitRightLayerName = "Right";
-
 //////////// END ANIMATION ////////////////
 
 //////////// HEALTH ////////////////
@@ -54,7 +53,7 @@ protected:
 //////////// END HEALTH ////////////////
 
 public:
-	AYBEnemy();
+	AYBEnemy(const FObjectInitializer& ObjectInitializer);
 
 protected:
 

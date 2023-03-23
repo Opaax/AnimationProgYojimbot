@@ -10,8 +10,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/Controller.h"
 #include "Components/WidgetComponent.h"
+#include "Perception/AIPerceptionComponent.h"
 
-AYBEnemy::AYBEnemy()
+AYBEnemy::AYBEnemy(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	

@@ -25,7 +25,7 @@ ASliceableActor::ASliceableActor()
 	SetRootComponent(m_meshProceduralComp);
 
 	m_baseMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMeshComp"));
-	m_baseMeshComp->SetupAttachment(GetRootComponent());
+	//if(m_baseMeshComp) m_baseMeshComp->SetupAttachment(GetRootComponent()); //make sure is exist
 
 	m_baseMeshComp->ToggleVisibility(false);
 	m_baseMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
