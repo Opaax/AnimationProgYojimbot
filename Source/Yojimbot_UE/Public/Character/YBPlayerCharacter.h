@@ -270,5 +270,6 @@ protected:
 
 public:
 
+	virtual void Jump() override;
 	virtual bool CanJumpInternal_Implementation() const override;
 };
