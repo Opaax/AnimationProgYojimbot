@@ -20,6 +20,6 @@ class YOJIMBOT_UE_API UYBPlayerOverlay : public UUserWidget
 	
 public:
 
-	UPROPERTY(BlueprintReadOnly, meta = (DisplayName = "Canvas", BindWidget = "Canvas"))
+	UPROPERTY(BlueprintReadOnly, meta = (DisplayName = "Canvas", BindWidget))
 	TObjectPtr<UCanvasPanel > m_canvas;
 };

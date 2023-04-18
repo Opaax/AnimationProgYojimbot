@@ -69,7 +69,7 @@ public:
 	void SetBarMaterialParameters(const float TopProgress, const float BottomProgress);
 
 	UFUNCTION(BlueprintCallable)
-	void SetInitialeProgressValues(const float TopProgress, const float BottomProgress);
+	void SetInitialProgressValues(const float TopProgress, const float BottomProgress);
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetTopProgress(const float NextProgress) { m_topProgress = NextProgress; }
