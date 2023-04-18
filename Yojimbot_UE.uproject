@@ -13,7 +13,9 @@
 				"AIModule",
 				"ControlRig",
 				"AnimGraphRuntime",
-				"UMG"
+				"UMG",
+				"Slate",
+				"SlateCore"
 			]
 		}
 	],

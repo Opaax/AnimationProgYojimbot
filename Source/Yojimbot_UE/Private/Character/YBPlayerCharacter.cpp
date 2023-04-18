@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "../../Public/Character/YBPlayerCharacterMovementComp.h"
 #include "../../Public/WeaponSystem/YBWeaponBase.h"
+#include "../../Public/Components/YBHealthComponent.h"
 
 #include "GameFramework/Character.h"
 #include "Engine/World.h"
@@ -60,6 +61,9 @@ AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializ
 
 	//Create A combo component
 	m_comboComp = CreateDefaultSubobject<UYBComboComponent>(TEXT("ComboComponent"));
+
+	//Create Health Component
+	m_healthComp = CreateDefaultSubobject<UYBHealthComponent>(TEXT("HealthComponent"));
 }
 
 void AYBPlayerCharacter::BeginPlay()

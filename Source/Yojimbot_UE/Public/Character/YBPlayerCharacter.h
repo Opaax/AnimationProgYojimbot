@@ -7,8 +7,11 @@
 #include "YBCharacterState.h"
 #include "YBPlayerCharacter.generated.h"
 
+//FORWARD
 class UYBPlayerCharacterMovementComp;
 class AYBWeaponBase;
+class UYBComboComponent;
+class UYBHealthComponent;
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -16,7 +19,6 @@ class UInputMappingContext;
 class UInputAction;
 class UAnimInstance;
 class UAnimMontage;
-class UYBComboComponent;
 
 /**
  * 
@@ -131,6 +133,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true", DisplayName = "PrimaryAttack"))
 	UInputAction* m_primaryAttackAction;
 	////////////// END INPUT /////////////////
+
+	/////////// HEALTH ////////////
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = YBComponents)
+	TObjectPtr<UYBHealthComponent> m_healthComp;
+	/////////// END HEALTH ////////////
+
 public:
 
 	AYBPlayerCharacter(const FObjectInitializer& ObjectInitializer);

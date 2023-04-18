@@ -18,3 +18,20 @@
 #define DEBUG_ERROR(Format,...) UE_LOG(LogTemp,Error,Format,__VA_ARGS__)
 #define DEBUG_WARNING(Format,...) UE_LOG(LogTemp,Warning,Format,__VA_ARGS__)
 #define DEBUG_LOG(Format,...) UE_LOG(LogTemp,Log,Format,__VA_ARGS__)
+
+/////////// Class ////////////
+/*
+*Current Class where this is called
+*/
+#define CURRENT_CLASS (FString(__FUNCTION__).Left(FString(__FUNCTION__).Find(TEXT(":"))))
+
+/*
+*Current Function Name where this is called
+*/
+#define CURRENT_FUNC (FString(__FUNCTION__).Right(FString(__FUNCTION__).Len() - FString(__FUNCTION__).Find(TEXT("::")) - 2))
+
+/*
+*Current Line Number in the code where this is called
+* Could be weird as this state especially on 'if/else' check, if you use it on else it will outlog the line on else not the if condition
+*/
+#define CURRENT_LINE  (TEXT("Line") + FString::FromInt(__LINE__))
