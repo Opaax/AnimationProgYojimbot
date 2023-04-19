@@ -9,6 +9,7 @@
 //FORWARD
 
 class UCanvasPanel;
+class UYBPlayerLifeBar;
 
 /**
  * Default YB Player overlay 
@@ -20,6 +21,9 @@ class YOJIMBOT_UE_API UYBPlayerOverlay : public UUserWidget
 	
 public:
 
-	UPROPERTY(BlueprintReadOnly, meta = (DisplayName = "Canvas", BindWidget))
-	TObjectPtr<UCanvasPanel > m_canvas;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (BindWidget))
+	TObjectPtr<UCanvasPanel > Canvas;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (BindWidget))
+	TObjectPtr<UYBPlayerLifeBar> LifeBar;
 };

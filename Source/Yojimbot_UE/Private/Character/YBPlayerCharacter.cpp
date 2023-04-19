@@ -19,6 +19,8 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "../../Public/Components/YBComboComponent.h"
 #include "../../Public/ComboSystem/YBComboState.h"
+#include "../../Public/UI/YBPlayerOverlay.h"
+#include "../../Public/UI/YBPlayerHUD.h"
 
 #include "../../Public/Utils/CustomDebugMacro.h"
 
@@ -84,6 +86,7 @@ void AYBPlayerCharacter::BeginPlay()
 
 	SpawnDefaultWeapon();
 	GetAnimInstanceFromMesh();
+	GetPlayerOverlayFromController();
 }
 
 void AYBPlayerCharacter::SpawnDefaultWeapon()
@@ -113,6 +116,38 @@ void AYBPlayerCharacter::GetAnimInstanceFromMesh()
 		m_animInstance = GetMesh()->GetAnimInstance();
 	}
 }
+
+void AYBPlayerCharacter::GetPlayerOverlayFromController()
+{
+	if (APlayerController* lController = Cast<APlayerController>(Controller))
+	{
+		if (AYBPlayerHUD* lHUD = Cast<AYBPlayerHUD>(lController->GetHUD()))
+		{
+			m_playerOverlay = lHUD->GetCurrentOverlay();
+
+			if (!m_playerOverlay)
+			{
+				DEBUG_ERROR(TEXT("%s, %s, at: %s, Current Overlay is null"), *CURRENT_CLASS, *CURRENT_FUNC, *CURRENT_LINE);
+				return;
+			}
+
+			LinkPlayerOverlayToHealthComp();
+		}
+	}
+}
+
+void AYBPlayerCharacter::LinkPlayerOverlayToHealthComp()
+{
+	if (m_playerOverlay && m_healthComp)
+	{
+		//Listen Health events to update player overlay
+	}
+	else
+	{
+		DEBUG_ERROR(TEXT("%s, %s, at: %s, Trying to link overlay to health component but one of them is null"), *CURRENT_CLASS, *CURRENT_FUNC, *CURRENT_LINE);
+	}
+}
+
 
 ///////////////////////// Combo /////////////////////////////
 
