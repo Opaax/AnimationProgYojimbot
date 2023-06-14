@@ -51,7 +51,7 @@ void UYBDamageableBar::SetBarMaterialParameters(const float TopProgress, const f
 	}
 }
 
-void UYBDamageableBar::SetInitialeProgressValues(const float TopProgress, const float BottomProgress)
+void UYBDamageableBar::SetInitialProgressValues(const float TopProgress, const float BottomProgress)
 {
 	m_bottomProgress = BottomProgress;
 	m_topProgress = m_prevTopProgress = TopProgress;

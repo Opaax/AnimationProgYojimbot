@@ -7,8 +7,12 @@
 #include "YBCharacterState.h"
 #include "YBPlayerCharacter.generated.h"
 
+//FORWARD
 class UYBPlayerCharacterMovementComp;
 class AYBWeaponBase;
+class UYBComboComponent;
+class UYBHealthComponent;
+class UYBPlayerOverlay;
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -16,10 +20,9 @@ class UInputMappingContext;
 class UInputAction;
 class UAnimInstance;
 class UAnimMontage;
-class UYBComboComponent;
 
 /**
- * 
+ * Default Yojimbot controllable character
  */
 UCLASS()
 class YOJIMBOT_UE_API AYBPlayerCharacter : public AYBCharacter
@@ -61,6 +64,7 @@ protected:
 	///////////// END MOVEMENT /////////////
 
 	///////////// COMBO /////////////
+
 	UPROPERTY(EditAnywhere, Category = Combo, meta = (DisplayName = "ComboComponent"))
 	TObjectPtr<UYBComboComponent> m_comboComp;
 	//////////// END COMBO //////////
@@ -131,6 +135,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true", DisplayName = "PrimaryAttack"))
 	UInputAction* m_primaryAttackAction;
 	////////////// END INPUT /////////////////
+
+	/////////// HEALTH ////////////
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = YBComponents)
+	TObjectPtr<UYBHealthComponent> m_healthComp;
+	/////////// END HEALTH ////////////
+
+    /////////// HUD ///////////
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HUD, meta = (DisplayName = "PlayerOverlay"))
+	TObjectPtr<UYBPlayerOverlay> m_playerOverlay;
+	/////////// END HUD ///////////
+
 public:
 
 	AYBPlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -196,6 +213,12 @@ protected:
 
 	UFUNCTION()
 	void StopListeningComboEvent();
+
+	UFUNCTION()
+	virtual void GetPlayerOverlayFromController();
+
+	UFUNCTION()
+	virtual void LinkPlayerOverlayToHealthComp();
 
 	//////////////// GETTER SETTER //////////////////////
 public:
