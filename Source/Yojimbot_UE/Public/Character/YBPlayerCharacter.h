@@ -138,7 +138,7 @@ protected:
 
 	/////////// HEALTH ////////////
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = YBComponents)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = "GetHealthComponent", Category = YBComponents)
 	TObjectPtr<UYBHealthComponent> m_healthComp;
 	/////////// END HEALTH ////////////
 
@@ -254,6 +254,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCurrentActionSate(ECharacterActionState NextState) { m_characterActionState = NextState; }
 
+	/*
+	* Get the health comp
+	*/
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE UYBHealthComponent* GetHealthComponent() const { return m_healthComp; }
 
 ////////// OVERRIDES ////////////
 protected:
