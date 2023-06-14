@@ -22,7 +22,7 @@ class YOJIMBOT_UE_API UYBPlayerOverlay : public UUserWidget
 public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (BindWidget))
-	TObjectPtr<UCanvasPanel > Canvas;
+	TObjectPtr<UCanvasPanel> Canvas;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (BindWidget))
 	TObjectPtr<UYBPlayerLifeBar> LifeBar;

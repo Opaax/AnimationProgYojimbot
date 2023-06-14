@@ -35,6 +35,9 @@ protected:
 	UFUNCTION()
 	virtual void InitWidget();
 
+	UFUNCTION()
+	void OnHealthCompUpdate(float CurrentHealth, const float HealthRatio);
+
 public:
 	//////// GETTER / SETTER ///////
 	UFUNCTION(BlueprintPure, BlueprintCallable)

@@ -5,6 +5,16 @@
 #include "../../Public/Framework/YBPlayerController.h"
 #include "../../Public/UI/YBPlayerOverlay.h"
 #include "../../Public/Utils/CustomDebugMacro.h"
+#include "../../Public/Character/YBPlayerCharacter.h"
+#include "../../Public/Components/YBHealthComponent.h"
+#include "../../Public/UI/YBPlayerLifeBar.h"
+
+void AYBPlayerHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InitWidget();
+}
 
 void AYBPlayerHUD::InitWidget()
 {
@@ -13,10 +23,20 @@ void AYBPlayerHUD::InitWidget()
 		if (UWorld* lWorld = GetWorld())
 		{
 			//We know is single player game, use index 0
-			if (AYBPlayerController* lYBController = Cast<AYBPlayerController>(UGameplayStatics::GetPlayerController(lWorld,0)))
+			if (AYBPlayerController* lYBController = Cast<AYBPlayerController>(UGameplayStatics::GetPlayerController(lWorld, 0)))
 			{
 				m_currentOverlay = CreateWidget<UYBPlayerOverlay>(lYBController, m_overlayWidgetClass);
 				m_currentOverlay->AddToViewport();
+
+				if (AYBPlayerCharacter* lCharac = Cast<AYBPlayerCharacter>(lYBController->GetPawn()))
+				{
+					if (UYBHealthComponent* lHealthComp = lCharac->GetHealthComponent())
+					{
+						m_currentOverlay->LifeBar->InitializeValues(lHealthComp->GetMaxHealth(), lHealthComp->GetHealth());
+
+						lHealthComp->OnHealthUpdate.AddDynamic(this, &AYBPlayerHUD::OnHealthCompUpdate);
+					}
+				}
 			}
 		}
 	}
@@ -26,9 +46,7 @@ void AYBPlayerHUD::InitWidget()
 	}
 }
 
-void AYBPlayerHUD::BeginPlay()
+void AYBPlayerHUD::OnHealthCompUpdate(float CurrentHealth, const float HealthRatio)
 {
-	Super::BeginPlay();
-
-	InitWidget();
+	m_currentOverlay->LifeBar->UpdateLife(CurrentHealth, HealthRatio);
 }
