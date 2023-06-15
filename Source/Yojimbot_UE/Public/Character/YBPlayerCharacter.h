@@ -109,6 +109,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MotionWarping, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMotionWarpingComponent> m_motionWarpingComponent;
 
+	UPROPERTY()
+	TArray<AActor*> m_warpingActors;
+
 	/******************************** End Motion warping ********************************/
 
 
@@ -260,6 +263,12 @@ protected:
 
 	UFUNCTION()
 	virtual void LinkPlayerOverlayToHealthComp();
+
+	UFUNCTION()
+	virtual void FindActorsToWarp();
+
+	UFUNCTION()
+	virtual void WarpOnBestActor();
 
 	/******************************** Getter / Setter ********************************/
 
