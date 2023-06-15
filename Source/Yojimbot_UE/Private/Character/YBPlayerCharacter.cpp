@@ -22,6 +22,8 @@
 #include "../../Public/UI/YBPlayerOverlay.h"
 #include "../../Public/UI/YBPlayerHUD.h"
 
+#include "MotionWarpingComponent.h"
+
 #include "../../Public/Utils/CustomDebugMacro.h"
 
 
@@ -66,6 +68,9 @@ AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializ
 
 	//Create Health Component
 	m_healthComp = CreateDefaultSubobject<UYBHealthComponent>(TEXT("HealthComponent"));
+
+	//Create Motion Warping Component
+	m_motionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
 void AYBPlayerCharacter::BeginPlay()
