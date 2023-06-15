@@ -325,6 +325,11 @@ void AYBPlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void AYBPlayerCharacter::Jump()
+{
+	Super::Jump();
+}
+
 bool AYBPlayerCharacter::CanJumpInternal_Implementation() const
 {
 	return Super::CanJumpInternal_Implementation() && m_characterActionState != ECharacterActionState::ECAS_Attacking;
