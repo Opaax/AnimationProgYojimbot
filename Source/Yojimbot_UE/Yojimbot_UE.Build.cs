@@ -11,6 +11,6 @@ public class Yojimbot_UE : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ "Core", "CoreUObject", "Engine", "InputCore", 
 			"HeadMountedDisplay", "EnhancedInput", "UMG", "ProceduralMeshComponent",
-		"AIModule", "GameplayCameras", "GameplayTasks"});
+		"AIModule", "GameplayCameras", "GameplayTasks", "MotionWarping"});
 	}
 }

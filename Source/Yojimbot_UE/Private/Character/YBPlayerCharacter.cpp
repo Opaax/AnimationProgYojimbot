@@ -22,6 +22,10 @@
 #include "../../Public/UI/YBPlayerOverlay.h"
 #include "../../Public/UI/YBPlayerHUD.h"
 
+#include "MotionWarpingComponent.h"
+
+#include "../../Public/Enemy/YBEnemy.h"
+
 #include "../../Public/Utils/CustomDebugMacro.h"
 
 
@@ -66,6 +70,9 @@ AYBPlayerCharacter::AYBPlayerCharacter(const FObjectInitializer& ObjectInitializ
 
 	//Create Health Component
 	m_healthComp = CreateDefaultSubobject<UYBHealthComponent>(TEXT("HealthComponent"));
+
+	//Create Motion Warping Component
+	m_motionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
 void AYBPlayerCharacter::BeginPlay()
@@ -148,6 +155,79 @@ void AYBPlayerCharacter::LinkPlayerOverlayToHealthComp()
 	}
 }
 
+void AYBPlayerCharacter::FindActorsToWarp()
+{
+	const FVector lTraceStart = GetActorLocation() + FVector(0,75.f,0);
+	const FVector lTranceEnd = GetActorLocation() + GetActorForwardVector() * 1000.f;
+	const FVector lBoxTraceHalfSize = FVector(75.f, 75.f, 75.f);
+	const FRotator lTraceRotation = GetActorRotation();
+
+	TArray<AActor*> lIgnoreActors;
+	TArray<FHitResult> lTraceResults;
+	TArray<TEnumAsByte<EObjectTypeQuery>> lTraceObjectTypes;
+
+	lIgnoreActors.AddUnique(this);
+	lIgnoreActors.AddUnique(m_weapon);
+	lTraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+
+	UKismetSystemLibrary::BoxTraceMultiForObjects(this, lTraceStart, lTranceEnd, lBoxTraceHalfSize, lTraceRotation, lTraceObjectTypes, false, lIgnoreActors, EDrawDebugTrace::ForDuration,
+		lTraceResults, true,FLinearColor::Red, FLinearColor::Green, .1f);
+
+	if (lTraceResults.Num() > 0)
+	{
+		for (int32 i = 0; i < lTraceResults.Num(); i++)
+		{
+			AActor* lActor = lTraceResults[i].GetActor();
+
+			if(lActor->IsA(AYBEnemy::StaticClass()))
+			{
+				DEBUG_ERROR(TEXT("%s"), *lActor->GetActorLabel());
+
+				m_warpingActors.Add(lActor);
+			}
+		}
+	}
+}
+
+void AYBPlayerCharacter::WarpOnBestActor()
+{
+	FTransform lWarpTransform;
+
+	AActor* lBestActor = nullptr;
+
+	for (int32 i = 0; i < m_warpingActors.Num(); i++)
+	{
+		AActor* lActor = m_warpingActors[i];
+
+		if (lBestActor)
+		{
+			//It Work
+			//Should I take time to things about GD 
+			//Dot/dist other things ? 
+			float lPrevDist = FVector::DistSquared(lBestActor->GetActorLocation(), GetActorLocation());
+			float lCurDist = FVector::DistSquared(lActor->GetActorLocation(), GetActorLocation());
+
+			if (lCurDist < lPrevDist)
+			{
+				lBestActor = lActor;
+			}
+		}
+		else
+		{
+			lBestActor = lActor;
+		}
+	}
+
+	FRotator lRot = (lBestActor->GetActorLocation() - GetActorLocation()).Rotation();
+
+	lWarpTransform.SetLocation(lBestActor->GetActorLocation());
+	lWarpTransform.SetRotation(lRot.Quaternion());
+
+	m_motionWarpingComponent->AddOrUpdateWarpTargetFromTransform(FName("Attack"), lWarpTransform);
+
+	m_warpingActors.Empty();
+}
+
 
 ///////////////////////// Combo /////////////////////////////
 
@@ -182,7 +262,6 @@ void AYBPlayerCharacter::StartComboAttack()
 
 				SetActorRotation(YawRotation);
 			}
-
 
 			if (m_comboComp)
 			{
@@ -346,6 +425,9 @@ void AYBPlayerCharacter::EquipWeapon(const FInputActionValue& Value)
 
 void AYBPlayerCharacter::PrimaryAttack(const FInputActionValue& Value)
 {
+	FindActorsToWarp();
+	WarpOnBestActor();
+
 	if (!CheckComboCompletion())
 	{
 		if (m_comboComp->GetComboState() == EComboState::ECS_OnWaiting)

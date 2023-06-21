@@ -20,6 +20,7 @@ class UInputMappingContext;
 class UInputAction;
 class UAnimInstance;
 class UAnimMontage;
+class UMotionWarpingComponent;
 
 /**
  * Default Yojimbot controllable character
@@ -29,17 +30,20 @@ class YOJIMBOT_UE_API AYBPlayerCharacter : public AYBCharacter
 {
 	GENERATED_BODY()
 
+	/******************************** MEMBERS ********************************/
 protected:
-	////////////////// STATE //////////////////
+
+	/******************************** State ********************************/
 
 	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetCurrentState, BlueprintSetter = SetCurrentSate)
 	ECharacterState m_characterState = ECharacterState::ECS_Unarmed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetCurrentActionState, BlueprintSetter = SetCurrentActionSate)
 	ECharacterActionState m_characterActionState = ECharacterActionState::ECAS_Unoccupied;
-	///////////////// END STATE ///////////////
 
-	/// //////////// WEAPONS //////////////
+	/******************************** End State ********************************/
+
+	/******************************** Weapons ********************************/
 
 	UPROPERTY(VisibleInstanceOnly, Category = RunTime)
 	bool bIsWeaponOnHand = false;
@@ -49,9 +53,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AYBWeaponBase> m_weaponClassToSpawn = nullptr;
-	/////////////// END WEAPON ///////////////
 
-	////////////// MOVEMENT /////////////////
+	/******************************** End Weapons ********************************/
+
+	/******************************** Movement ********************************/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	UYBPlayerCharacterMovementComp* m_playerMovementComp = nullptr;
@@ -61,15 +66,17 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (DisplayName = "OneHandSwordSpeed", AllowPrivateAccess = "true"))
 	float m_oneHandSwordSpeed = 500.f;
-	///////////// END MOVEMENT /////////////
 
-	///////////// COMBO /////////////
+	/******************************** End Movement ********************************/
+
+	/******************************** Combo ********************************/
 
 	UPROPERTY(EditAnywhere, Category = Combo, meta = (DisplayName = "ComboComponent"))
 	TObjectPtr<UYBComboComponent> m_comboComp;
-	//////////// END COMBO //////////
 
-	////////////// ANIMATION /////////////////
+	/******************************** End Combo ********************************/
+
+	/******************************** Animation ********************************/
 
 	UPROPERTY(EditDefaultsOnly, BlueprintGetter = GetUseRootMotion, Category = "Animation/Settings")
 	bool bUseRootMotion = false;
@@ -94,26 +101,47 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	bool bShouldRotateToControllerDirectionBeforeAttacking = false;
-	////////////// END ANIMATION /////////////////
 
-	////////////// CAMERA /////////////////
+	/******************************** End Animation ********************************/
 
-	/** Camera boom positioning the camera behind the character */
+	/******************************** Motion warping ********************************/
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MotionWarping, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMotionWarpingComponent> m_motionWarpingComponent;
+
+	UPROPERTY()
+	TArray<AActor*> m_warpingActors;
+
+	/******************************** End Motion warping ********************************/
+
+
+	/******************************** Camera ********************************/
+
+	/*
+	* Camera boom positioning the camera behind the character 
+	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
-	/** Follow camera */
+	/*
+	* Follow camera 
+	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	////////////// END CAMERA /////////////////
 
-	////////////// INPUT /////////////////
+	/******************************** End Camera ********************************/
 
-	/** MappingContext */
+	/******************************** Inputs ********************************/
+
+	/*
+	* MappingContext with default inputs
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
-	/** MappingContext */
 
+	/*
+	* MappingContext with for one hand sword
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true", DisplayName = "OneHandSwordMappingContext"))
 	UInputMappingContext* m_oneHandSwordMappingContext;
 
@@ -134,20 +162,26 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true", DisplayName = "PrimaryAttack"))
 	UInputAction* m_primaryAttackAction;
-	////////////// END INPUT /////////////////
 
-	/////////// HEALTH ////////////
+	/******************************** End Inputs ********************************/
+
+	/******************************** Health ********************************/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = "GetHealthComponent", Category = YBComponents)
 	TObjectPtr<UYBHealthComponent> m_healthComp;
-	/////////// END HEALTH ////////////
 
-    /////////// HUD ///////////
+	/******************************** End Health ********************************/
+
+	/******************************** HUD ********************************/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HUD, meta = (DisplayName = "PlayerOverlay"))
 	TObjectPtr<UYBPlayerOverlay> m_playerOverlay;
-	/////////// END HUD ///////////
 
+	/******************************** End HUD ********************************/
+
+	/******************************** END MEMBERS ********************************/
+
+	/******************************** FUNCTIONS ********************************/
 public:
 
 	AYBPlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -163,24 +197,34 @@ public:
 
 protected:
 
-	/** Called for movement input */
+	/*
+	* Called for movement input
+	*/
 	void Move(const FInputActionValue& Value);
 
-	/** Called for looking input */
+	/*
+	* Called for looking input 
+	*/
 	void Look(const FInputActionValue& Value);
 
-	/** Called for equip the weapon on the hand of the character*/
+	/*
+	* Called for equip the weapon on the hand of the character
+	*/
 	UFUNCTION()
 	void EquipWeapon(const FInputActionValue& Value);
 
 	UFUNCTION()
 	void PrimaryAttack(const FInputActionValue& Value);
 
-	/** Take the weapon from Scabbard*/
+	/*
+	* Take the weapon from Scabbard
+	*/
 	UFUNCTION()
 	void TakeWeaponOnHand();
 
-	/** return the weapon to Scabbard*/
+	/*
+	* return the weapon to Scabbard
+	*/
 	UFUNCTION()
 	void StoreWeaponInScabbard();
 
@@ -220,37 +264,60 @@ protected:
 	UFUNCTION()
 	virtual void LinkPlayerOverlayToHealthComp();
 
-	//////////////// GETTER SETTER //////////////////////
+	UFUNCTION()
+	virtual void FindActorsToWarp();
+
+	UFUNCTION()
+	virtual void WarpOnBestActor();
+
+	/******************************** Getter / Setter ********************************/
+
 public:
-	/** Returns CameraBoom subobject **/
+	/*
+	* Returns CameraBoom subobject
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
-	/** Returns FollowCamera subobject **/
+	/*
+	* Returns FollowCamera subobject
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	/** Returns Character State*/
+	/*
+	* Returns Character State
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE ECharacterState GetCurrentState() const { return m_characterState; }
 
-	/** Returns Character Action State*/
+	/*
+	* Returns Character Action State
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE ECharacterActionState GetCurrentActionState() const { return m_characterActionState; }
 
-	/** Return if use root motion*/
+	/*
+	* Return if use root motion
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE bool GetUseRootMotion() const { return bUseRootMotion; }
 
-	/** return input direction*/
+	/*
+	* return input direction
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE FVector2D GetInputDirection() const { return m_inputDirection; }
 
-	/** Set Character State*/
+	/*
+	* Set Character State
+	*/
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCurrentSate(ECharacterState NextState) { m_characterState = NextState; }
 
-	/** Set Character Action State*/
+	/*
+	* Set Character Action State
+	*/
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCurrentActionSate(ECharacterActionState NextState) { m_characterActionState = NextState; }
 
@@ -260,7 +327,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE UYBHealthComponent* GetHealthComponent() const { return m_healthComp; }
 
-////////// OVERRIDES ////////////
+	/******************************** End Getter/Setter ********************************/
+
+	/******************************** END FUNCTIONS ********************************/
+
+	/******************************** OVERRIDE ********************************/
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -272,4 +344,6 @@ public:
 
 	virtual void Jump() override;
 	virtual bool CanJumpInternal_Implementation() const override;
+
+	/******************************** END OVERRIDE ********************************/
 };
