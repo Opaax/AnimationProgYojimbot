@@ -4,7 +4,7 @@
 #include "Framework/YBIAController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
-#include "../../Public/AI/YBAIChacracter.h"
+#include "../../Public/AI/YBAICharacter.h"
 #include "BehaviorTree/BehaviorTree.h"
 
 AYBIAController::AYBIAController()
@@ -17,7 +17,7 @@ void AYBIAController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	if (AYBAIChacracter* lCharacter = Cast<AYBAIChacracter>(InPawn))
+	if (AYBAICharacter* lCharacter = Cast<AYBAICharacter>(InPawn))
 	{
 		lCharacter->SetYBController(this);
 

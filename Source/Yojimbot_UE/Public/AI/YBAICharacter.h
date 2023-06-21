@@ -6,7 +6,7 @@
 #include "../Framework/YBCharacter.h"
 #include "Perception/AIPerceptionTypes.h"
 
-#include "YBAIChacracter.generated.h"
+#include "YBAICharacter.generated.h"
 
 class UAIPerceptionComponent;
 class UBehaviorTree;
@@ -16,7 +16,7 @@ class AYBIAController;
  * 
  */
 UCLASS()
-class YOJIMBOT_UE_API AYBAIChacracter : public AYBCharacter
+class YOJIMBOT_UE_API AYBAICharacter : public AYBCharacter
 {
 	GENERATED_BODY()
 	
@@ -51,7 +51,7 @@ protected:
 	virtual void SetTargetActorBlackboardValue(AActor* NewValue);
 
 public:
-	AYBAIChacracter(const FObjectInitializer& ObjectInitializer);
+	AYBAICharacter(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION()
 	void OnPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus);

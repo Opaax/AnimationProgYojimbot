@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../AI/YBAIChacracter.h"
+#include "../AI/YBAICharacter.h"
 #include "../DamageSystem/HitInterface.h"
 #include "YBEnemy.generated.h"
 
@@ -15,7 +15,7 @@ class UWidgetComponent;
 class UYBEnemyLifeBar;
 
 UCLASS()
-class YOJIMBOT_UE_API AYBEnemy : public AYBAIChacracter, public IHitInterface
+class YOJIMBOT_UE_API AYBEnemy : public AYBAICharacter, public IHitInterface
 {
 	GENERATED_BODY()
 

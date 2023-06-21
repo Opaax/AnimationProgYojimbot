@@ -1,29 +1,29 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/YBAIChacracter.h"
+#include "AI/YBAICharacter.h"
 #include "../../Public/Framework/YBIAController.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "../../Public/Utils/CustomDebugMacro.h"
 
-AYBAIChacracter::AYBAIChacracter(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
+AYBAICharacter::AYBAICharacter(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
 {
 	m_AIPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 }
 
-void AYBAIChacracter::BeginPlay()
+void AYBAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
 	InitPerceptionListener();
 }
 
-void AYBAIChacracter::InitPerceptionListener()
+void AYBAICharacter::InitPerceptionListener()
 {
-	m_AIPerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AYBAIChacracter::OnPerceptionUpdate);
+	m_AIPerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AYBAICharacter::OnPerceptionUpdate);
 }
 
-void AYBAIChacracter::OnPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus)
+void AYBAICharacter::OnPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus)
 {
 	//DEBUG_LOG(TEXT("%s, Stimulus Tag"), *Stimulus.Type.Name.ToString());
 	/*
@@ -46,7 +46,7 @@ void AYBAIChacracter::OnPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus)
 	}
 }
 
-void AYBAIChacracter::SetOnSightBlackboardValue(bool NewValue)
+void AYBAICharacter::SetOnSightBlackboardValue(bool NewValue)
 {
 	if (m_YBController)
 	{
@@ -54,7 +54,7 @@ void AYBAIChacracter::SetOnSightBlackboardValue(bool NewValue)
 	}
 }
 
-void AYBAIChacracter::SetTargetActorBlackboardValue(AActor* NewValue)
+void AYBAICharacter::SetTargetActorBlackboardValue(AActor* NewValue)
 {
 	if (m_YBController)
 	{

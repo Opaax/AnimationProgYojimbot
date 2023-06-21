@@ -6,7 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "../../../Public/AI/YBAIChacracter.h"
+#include "../../../Public/AI/YBAICharacter.h"
 #include "../../../Public/Utils/CustomDebugMacro.h"
 
 UYBBTTask_RotateHeadToTargetActor::UYBBTTask_RotateHeadToTargetActor(FObjectInitializer const& ObjectInitializer)
@@ -20,7 +20,7 @@ UYBBTTask_RotateHeadToTargetActor::UYBBTTask_RotateHeadToTargetActor(FObjectInit
 EBTNodeResult::Type UYBBTTask_RotateHeadToTargetActor::ExecuteTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
 {
 	//Make sure The controlled pawn is YBAIChacracter
-	if (AYBAIChacracter* lCharacter = CastChecked<AYBAIChacracter>(OwnerComp.GetAIOwner()->GetPawn()))
+	if (AYBAICharacter* lCharacter = CastChecked<AYBAICharacter>(OwnerComp.GetAIOwner()->GetPawn()))
 	{
 		//Check if Key object is null
 		if (const AActor* lTargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKey.SelectedKeyName)))
