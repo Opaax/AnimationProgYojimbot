@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "../Framework/YBCharacter.h"
 #include "Perception/AIPerceptionTypes.h"
+#include "YBAIState.h"
 
 #include "YBAICharacter.generated.h"
 
@@ -13,33 +14,43 @@ class UBehaviorTree;
 class AYBIAController;
 
 /**
- * 
+ * The default character class for YB AI
  */
 UCLASS()
 class YOJIMBOT_UE_API AYBAICharacter : public AYBCharacter
 {
 	GENERATED_BODY()
-	
+
+	/******************************** MEMBERS ********************************/	
 protected:
 
-	///////////// AI ///////////////
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, BlueprintGetter = GetYBController, BlueprintSetter = SetYBController, Category = Controller)
+	TObjectPtr<AYBIAController> m_YBController;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintGetter = GetAIState, BlueprintSetter = SetAIState, Category = AIState)
+	EAIState m_AIState = EAIState::EAIS_Dummy;
+
+	/******************************** AI ********************************/
+
 	UPROPERTY(EditDefaultsOnly,BlueprintGetter = GetBehaviorTree, Category = AI, meta = (DisplayName = "BehaviorTree"))
 	TObjectPtr<UBehaviorTree> m_behaviorTree;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AI)
 	TObjectPtr<UAIPerceptionComponent> m_AIPerceptionComp;
-	/////////// END AI //////////////
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, BlueprintGetter = GetYBController, BlueprintSetter = SetYBController, Category = Controller)
-	TObjectPtr<AYBIAController> m_YBController;
+	/******************************** END AI ********************************/
 
-	//////////// Animation /////////////
+	/******************************** Animation ********************************/	
+
 	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetYawRotationAngleToTarget, BlueprintSetter = SetYawRotationAngleToTarget, Category = "Animation/Settings", meta = (DisplayName = "YawRotationAngleToTarget"))
 	float m_yawRotationAngleToTarget = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetPitchRotationAngleToTarget, BlueprintSetter = SetPitchRotationAngleToTarget, Category = "Animation/Settings", meta = (DisplayName = "PitchRotationAngleToTarget"))
 	float m_pitchRotationAngleToTarget = 0;
 
+	/******************************** End Animation ********************************/
+
+	/******************************** FUNCTIONS ********************************/
 protected:
 
 	UFUNCTION(BlueprintCallable, Category = "AI/Perception")
@@ -76,7 +87,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetYBController(AYBIAController* YBController) { m_YBController = YBController; }
 
-//////////// OVERRRIDE ///////////////
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE EAIState GetAIState() const { return m_AIState; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetAIState(EAIState NewState = EAIState::EAIS_Dummy) { m_AIState = NewState; }
+
+	/******************************** OVERRIDE ********************************/
 protected:
 	virtual void BeginPlay() override;
 };

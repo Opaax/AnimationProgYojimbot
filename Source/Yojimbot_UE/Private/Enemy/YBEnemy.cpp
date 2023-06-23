@@ -148,7 +148,6 @@ void AYBEnemy::OnHit_Implementation(const FVector& ImpactPoint, const APawn* Cau
 
 float AYBEnemy::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-
 	m_healthComponent->GiveDamage(DamageAmount);
 	
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);

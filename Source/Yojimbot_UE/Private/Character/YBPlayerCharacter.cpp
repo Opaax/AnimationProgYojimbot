@@ -218,6 +218,12 @@ void AYBPlayerCharacter::WarpOnBestActor()
 		}
 	}
 
+	if (!lBestActor)
+	{
+		DEBUG_ERROR(TEXT("%s, %s, %s, No Actor to warp on"), *CURRENT_CLASS, *CURRENT_FUNC, *CURRENT_LINE)
+		return;
+	}
+
 	FRotator lRot = (lBestActor->GetActorLocation() - GetActorLocation()).Rotation();
 
 	lWarpTransform.SetLocation(lBestActor->GetActorLocation());
